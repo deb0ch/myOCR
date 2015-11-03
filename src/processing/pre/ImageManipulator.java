@@ -1,7 +1,9 @@
 package processing.pre;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 
@@ -34,7 +36,7 @@ public class ImageManipulator {
     private boolean isAValidFilePath(String filepath) {
         if (filepath == null) return false;
         File f = new File(filepath);
-        return f.isFile() && f.exists() && isAValidFilePath(filepath);
+        return f.isFile() && f.exists() && isAnImage(filepath);
     }
 
     /**
@@ -85,11 +87,41 @@ public class ImageManipulator {
         return Imgcodecs.imwrite(filepath, img);
     }
 
-//    private void tmp() {
-//                Mat m = Imgcodecs.imread("/home/sal/img1.jpg", Imgcodecs.IMREAD_GRAYSCALE);
-//        Imgcodecs.imwrite("/home/sal/img1_gray.jpg", m);
-//        Mat m2 = new Mat();
+    /**
+     *
+     * @param src
+     * @return
+     */
+    public Mat applyGaussianBlur(Mat src) {
+        assert src != null : "Invalid matrice: null value";
+
+        Mat dest = new Mat();
+        Size ksize = new Size(5,5);
+        int sigmaX = 0;
+        int sigmaY = 0;
+        Imgproc.GaussianBlur(src, dest, ksize, sigmaX, sigmaY);
+        return dest;
+    }
+
+    /**
+     *
+     * @param src
+     * @return
+     */
+    public Mat applyOtsuBinarysation(Mat src) {
+        assert src != null : "Invalid matrice: null value";
+
+        Mat dest = new Mat();
+        int thresh = 0;
+        int maxValue = 255;
+        Imgproc.threshold(src, dest, thresh, maxValue, Imgproc.THRESH_OTSU + Imgproc.THRESH_BINARY);
+        return dest;
+    }
+
+    public Mat noiseSuppression(Mat src) {
+        assert src != null : "Invalid matrice: null value";
+        return applyOtsuBinarysation(applyGaussianBlur(src));
+    }
+
 //        Imgproc.adaptiveThreshold(m, m2, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2);
-//        Imgcodecs.imwrite("/home/sal/img1_binary.jpg", m2);
-//    }
 }

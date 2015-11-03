@@ -3,10 +3,15 @@
  */
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.opencv.core.Core;
 
 public class OCRApplication extends Application {
+
+    private static final String APPLICATION_TITLE = "MyOCR";
 
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -14,7 +19,12 @@ public class OCRApplication extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws Exception {
+        Pane pane = FXMLLoader.load(getClass().getResource("ui/views/Home.fxml"));
 
+        Scene scene = new Scene(pane, 1024, 720);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle(APPLICATION_TITLE);
+        primaryStage.show();
     }
 }
