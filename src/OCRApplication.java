@@ -11,9 +11,16 @@ import org.opencv.core.Core;
 
 public class OCRApplication extends Application {
 
+    /**
+     * The title of this application
+     */
     private static final String APPLICATION_TITLE = "MyOCR";
 
-    public static void main(String[] args) {
+    /**
+     * The function that is call to start the java program
+     * @param args the arguments given to the program
+     */
+    public static void main(String... args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         launch(args);
     }
