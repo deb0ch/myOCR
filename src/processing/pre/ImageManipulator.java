@@ -10,14 +10,16 @@ import java.io.File;
 /**
  * Created by sal on 02/11/15.
  */
-public class ImageManipulator {
+public class ImageManipulator
+{
 
     /**
      * This function aims to verify that the path is about loading an image
      * @param filepath the path to verify
      * @return true if the string ends with supported formats, false otherwise
      */
-    private boolean isAnImage(String filepath) {
+    private boolean isAnImage(String filepath)
+    {
         assert filepath != null && !filepath.isEmpty() : "Invalid file path";
 
         filepath = filepath.trim();
@@ -33,7 +35,8 @@ public class ImageManipulator {
      * @param filepath the path to verify
      * @return true if the path is not null, the file exists and it's an image, false otherwise.
      */
-    private boolean isAValidFilePath(String filepath) {
+    private boolean isAValidFilePath(String filepath)
+    {
         if (filepath == null) return false;
         File f = new File(filepath);
         return f.isFile() && f.exists() && isAnImage(filepath);
@@ -44,7 +47,8 @@ public class ImageManipulator {
      * @param imReadCode the code to verify
      * @return true if the code is valid, false otherwise.
      */
-    private boolean isAValidImReadCode(int imReadCode) {
+    private boolean isAValidImReadCode(int imReadCode)
+    {
         return imReadCode == Imgcodecs.IMREAD_UNCHANGED ||
                 imReadCode == Imgcodecs.IMREAD_GRAYSCALE ||
                 imReadCode == Imgcodecs.IMREAD_COLOR ||
@@ -58,7 +62,8 @@ public class ImageManipulator {
      * @param filepath the path to the image to be load.
      * @return a Matrice that can be used with OpenCv functions.
      */
-    public Mat loadImage(String filepath) {
+    public Mat loadImage(String filepath)
+    {
         return this.loadImage(filepath, Imgcodecs.IMREAD_UNCHANGED);
     }
 
@@ -70,7 +75,8 @@ public class ImageManipulator {
      * @param imReadCode the Imgcodecs.IMREAD_* code to change the properties of the loaded image.
      * @return a Matrice that can be used with OpenCv functions.
      */
-    public Mat loadImage(String filepath, int imReadCode) {
+    public Mat loadImage(String filepath, int imReadCode)
+    {
         assert isAValidFilePath(filepath): "filepath is invalid: '" + filepath + "'";
         assert isAValidImReadCode(imReadCode): "imReadCode is invalid: '" + imReadCode + "'";
 
@@ -83,7 +89,8 @@ public class ImageManipulator {
      * @param img the Matrice that represent the image to be save.
      * @return true if the image is successfully written, false otherwise.
      */
-    public boolean writeImage(String filepath, Mat img) {
+    public boolean writeImage(String filepath, Mat img)
+    {
         return Imgcodecs.imwrite(filepath, img);
     }
 
@@ -92,7 +99,8 @@ public class ImageManipulator {
      * @param src
      * @return
      */
-    public Mat applyGaussianBlur(Mat src) {
+    public Mat applyGaussianBlur(Mat src)
+    {
         assert src != null : "Invalid matrice: null value";
 
         Mat dest = new Mat();
@@ -108,7 +116,8 @@ public class ImageManipulator {
      * @param src
      * @return
      */
-    public Mat applyOtsuBinarysation(Mat src) {
+    public Mat applyOtsuBinarysation(Mat src)
+    {
         assert src != null : "Invalid matrice: null value";
 
         Mat dest = new Mat();
@@ -118,7 +127,8 @@ public class ImageManipulator {
         return dest;
     }
 
-    public Mat noiseSuppression(Mat src) {
+    public Mat noiseSuppression(Mat src)
+    {
         assert src != null : "Invalid matrice: null value";
         return applyOtsuBinarysation(applyGaussianBlur(src));
     }
