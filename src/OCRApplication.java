@@ -6,6 +6,8 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import processing.pre.ImageManipulator;
 
+import java.time.LocalTime;
+
 public class OCRApplication
 {
     private static final String USAGE = "java OCRApplication pathToFile";
@@ -21,14 +23,13 @@ public class OCRApplication
         {
             String filepath = args[0];
             Mat m = ImageManipulator.loadImage(filepath);
-            if (m == null) {
-                System.out.println("1");
-
-            } else {
-                System.out.println(m);
-                System.out.println(m.dump());
-                System.out.println(m.dataAddr() == 0x0);
-                System.out.println(m.empty());
+            if (!m.empty())
+            {
+                ImageManipulator.writeImage("resources/res"+ LocalTime.now() +"jpg", ImageManipulator.noiseSuppression(m));
+            }
+            else
+            {
+                System.err.println("File is not an image");
             }
         }
         else
