@@ -7,6 +7,7 @@ import org.opencv.core.Core;
 public class OCRApplication
 {
     private static final String USAGE = "java OCRApplication pathToFile";
+
     /**
      * The function that is call to start the java program
      * @param args the arguments given to the program
@@ -14,9 +15,9 @@ public class OCRApplication
     public static void main(String... args)
     {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        if (args.length > 1)
+        if (args.length >= 1)
         {
-
+            String filepath = args[0];
         }
         else
         {
