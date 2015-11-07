@@ -33,7 +33,7 @@ public class ImageManipulator
      */
     public static Mat applyGaussianBlur(Mat src)
     {
-        assert src != null : "Invalid matrice: null value";
+        assert src != null : "Invalid matrix: null value";
 
         Mat dest = new Mat();
         Size ksize = new Size(5,5);
@@ -50,7 +50,7 @@ public class ImageManipulator
      */
     public static Mat applyOtsuBinarysation(Mat src)
     {
-        assert src != null : "Invalid matrice: null value";
+        assert src != null : "Invalid matrix: null value";
 
         Mat dest = new Mat();
         int thresh = 0;
@@ -61,7 +61,7 @@ public class ImageManipulator
 
     public static Mat noiseSuppression(Mat src)
     {
-        assert src != null : "Invalid matrice: null value";
+        assert src != null : "Invalid matrix: null value";
         return applyOtsuBinarysation(applyGaussianBlur(src));
     }
 
