@@ -65,6 +65,11 @@ public class ImageManipulator
         return applyOtsuBinarysation(applyGaussianBlur(src));
     }
 
+    /**
+     * Implemented from the given examples of OpenCV, doesn't work on Binarized images
+     * @param src
+     * @return
+     */
     public static Mat calculateHistogram(Mat src)
     {
         Mat tmp = new Mat();
@@ -87,12 +92,18 @@ public class ImageManipulator
         return histImage;
     }
 
+    /**
+     * Generates an histogram of black pixels counting the columns occurrences
+     * @param src a binarized image
+     * @return an histogram of the columns
+     */
     public static Mat manualCalculationHistogramColumns(Mat src)
     {
         int[] counts = new int[src.cols()];
         for (int row = 0; row < src.rows(); row++)
         {
-            for (int col = 0; col < src.cols(); col++) {
+            for (int col = 0; col < src.cols(); col++)
+            {
                 if (src.get(row, col)[0] == 0d) // is black
                 {
                     counts[col] += 1;
@@ -102,14 +113,16 @@ public class ImageManipulator
 
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
-        for (int count : counts) {
+        for (int count : counts)
+        {
             min = Math.min(min, count);
             max = Math.max(max, count);
         }
 
 //        StringBuilder sb = new StringBuilder();
         Mat histogram = new Mat(max, counts.length, CvType.CV_8UC3, new Scalar(255d, 255d, 255d));
-        for (int i = 0; i < counts.length; i++) {
+        for (int i = 0; i < counts.length; i++)
+        {
             Imgproc.line(histogram,
                     new Point(i, 0),
                     new Point(i, counts[i]),
@@ -122,11 +135,17 @@ public class ImageManipulator
         return histogram;
     }
 
+    /**
+     * Generates an histogram of black pixels counting the rows occurrences
+     * @param src a binarized image
+     * @return an histogram of the rows
+     */
     public static Mat manualCalculationHistogramRows(Mat src)
     {
         int[] counts = new int[src.rows()];
 
-        for (int col = 0; col < src.cols(); col++) {
+        for (int col = 0; col < src.cols(); col++)
+        {
             for (int row = 0; row < src.rows(); row++)
             {
                 if (src.get(row, col)[0] == 0d) // is black
@@ -135,16 +154,19 @@ public class ImageManipulator
                 }
             }
         }
+
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
-        for (int count : counts) {
+        for (int count : counts)
+        {
             min = Math.min(min, count);
             max = Math.max(max, count);
         }
 
 //        StringBuilder sb = new StringBuilder();
         Mat histogram = new Mat(counts.length, max, CvType.CV_8UC3, new Scalar(255d, 255d, 255d));
-        for (int i = 0; i < counts.length; i++) {
+        for (int i = 0; i < counts.length; i++)
+        {
             Imgproc.line(histogram,
                     new Point(0, i),
                     new Point(counts[i], i),
@@ -156,5 +178,4 @@ public class ImageManipulator
 //        System.out.println(sb.toString());
         return histogram;
     }
-//        Imgproc.adaptiveThreshold(m, m2, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2);
 }
