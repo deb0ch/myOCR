@@ -8,8 +8,6 @@ appName=OCRApplication
 
 if [ $# -eq 1 ]
 then
-    echo $javaClasspath
-    echo $javaLibraryPath
     java -Djava.library.path=$javaLibraryPath -cp $javaClasspath $appName $1
 else
     echo $usage

@@ -1,11 +1,13 @@
 package processing.pre;
 
-import org.opencv.core.Mat;
-import org.opencv.core.Size;
+import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by sal on 02/11/15.
@@ -22,59 +24,6 @@ public class ImageManipulator
         if (filepath == null) return false;
         File f = new File(filepath);
         return f.isFile() && f.exists();
-    }
-
-    /**
-     * This function aims to verify the validity of an Imgcodecs.IMREAD_* code gave to a function
-     * @param imReadCode the code to verify
-     * @return true if the code is valid, false otherwise.
-     */
-    private static boolean isAValidImReadCode(int imReadCode)
-    {
-        return imReadCode == Imgcodecs.IMREAD_UNCHANGED
-                || imReadCode == Imgcodecs.IMREAD_GRAYSCALE
-                || imReadCode == Imgcodecs.IMREAD_COLOR
-                || imReadCode == Imgcodecs.IMREAD_ANYDEPTH
-                || imReadCode == Imgcodecs.IMREAD_ANYCOLOR
-                || imReadCode == Imgcodecs.IMREAD_LOAD_GDAL
-                ;
-    }
-
-    /**
-     * This function aims to return an Opencv Matrice that represent an image. The image will be loaded as it is.
-     * @param filepath the path to the image to be load.
-     * @return a Matrice that can be used with OpenCv functions.
-     */
-    public static Mat loadImage(String filepath)
-    {
-        return loadImage(filepath, Imgcodecs.IMREAD_UNCHANGED);
-    }
-
-    /**
-     *
-     * This function aims to return an Opencv Matrice that represent an image. The image will be loaded with the given
-     * specifications pass with the code argument.
-     * @param filepath the path to the image to be load.
-     * @param imReadCode the Imgcodecs.IMREAD_* code to change the properties of the loaded image.
-     * @return a Matrice that can be used with OpenCv functions.
-     */
-    public static Mat loadImage(String filepath, int imReadCode)
-    {
-        assert isAValidFilePath(filepath): "filepath is invalid: '" + filepath + "'";
-        assert isAValidImReadCode(imReadCode): "imReadCode is invalid: '" + imReadCode + "'";
-
-        return Imgcodecs.imread(filepath, imReadCode);
-    }
-
-    /**
-     * This function aims to write a Matrice as an image.
-     * @param filepath the path and name of the file to save in.
-     * @param img the Matrice that represent the image to be save.
-     * @return true if the image is successfully written, false otherwise.
-     */
-    public static boolean writeImage(String filepath, Mat img)
-    {
-        return Imgcodecs.imwrite(filepath, img);
     }
 
     /**
@@ -116,5 +65,61 @@ public class ImageManipulator
         return applyOtsuBinarysation(applyGaussianBlur(src));
     }
 
+    public static Mat calculateHistogram(Mat src)
+    {
+        Mat tmp = new Mat();
+        List<Mat> imgs = new LinkedList<>();
+        imgs.add(src);
+        int histSize = 256;
+        Imgproc.calcHist(imgs, new MatOfInt(0), new Mat(), tmp, new MatOfInt(histSize), new MatOfFloat(0,256));
+        int hist_w = 512, hist_h = 400;
+        int bin_w = hist_w/histSize;
+
+        Mat histImage = new Mat(hist_h, hist_w, CvType.CV_8UC3, new Scalar(255, 255, 255));
+        Core.normalize(tmp, tmp, 0, histImage.rows(), Core.NORM_MINMAX, -1, new Mat());
+        for (int i = 1; i < histSize; i++)
+        {
+            Imgproc.line(histImage,
+                    new Point(bin_w * (i-1), hist_h - tmp.get(i-1, 0)[0]),
+                    new Point(bin_w * (i), hist_h - tmp.get(i, 0)[0]),
+                    new Scalar(0, 0, 0), 2, 8, 0);
+        }
+        return histImage;
+    }
+
+    public static Mat calculateHistogram2(Mat src)
+    {
+        int[] counts = new int[src.cols()];
+        for (int row = 0; row < src.rows(); row++)
+        {
+            for (int col = 0; col < src.cols(); col++) {
+                if (src.get(row, col)[0] == 0d) // is black
+                {
+                    counts[col] += 1;
+                }
+            }
+        }
+
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+        for (int count : counts) {
+            min = Math.min(min, count);
+            max = Math.max(max, count);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        Mat histogram = new Mat(max, counts.length, CvType.CV_8UC3, new Scalar(255d, 255d, 255d));
+        for (int i = 0; i < counts.length; i++) {
+            Imgproc.line(histogram,
+                    new Point(i, 0),
+                    new Point(i, counts[i]),
+                    new Scalar(0, 0, 0),
+                    2, 8, 0);
+            sb.append(counts[i]);
+            if (counts.length -1 != i) sb.append(',');
+        }
+        System.out.println(sb.toString());
+        return histogram;
+    }
 //        Imgproc.adaptiveThreshold(m, m2, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2);
 }
