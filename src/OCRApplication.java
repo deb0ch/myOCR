@@ -33,8 +33,10 @@ public class OCRApplication
                 Mat tmp = ImageManipulator.noiseSuppression(m);
 //                Thread.sleep(1L);
                 Imgcodecs.imwrite("/tmp/res" + LocalTime.now() + extension, tmp);
-                Thread.sleep(1000L);
-                Imgcodecs.imwrite("/tmp/res" + LocalTime.now() + extension, ImageManipulator.calculateHistogram2(tmp));
+                Thread.sleep(100L);
+                Imgcodecs.imwrite("/tmp/res" + LocalTime.now() + extension, ImageManipulator.manualCalculationHistogramColumns(tmp));
+                Thread.sleep(100L);
+                Imgcodecs.imwrite("/tmp/res" + LocalTime.now() + extension, ImageManipulator.manualCalculationHistogramRows(tmp));
             }
             else
             {

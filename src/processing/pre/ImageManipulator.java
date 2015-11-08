@@ -87,7 +87,7 @@ public class ImageManipulator
         return histImage;
     }
 
-    public static Mat calculateHistogram2(Mat src)
+    public static Mat manualCalculationHistogramColumns(Mat src)
     {
         int[] counts = new int[src.cols()];
         for (int row = 0; row < src.rows(); row++)
@@ -107,7 +107,7 @@ public class ImageManipulator
             max = Math.max(max, count);
         }
 
-        StringBuilder sb = new StringBuilder();
+//        StringBuilder sb = new StringBuilder();
         Mat histogram = new Mat(max, counts.length, CvType.CV_8UC3, new Scalar(255d, 255d, 255d));
         for (int i = 0; i < counts.length; i++) {
             Imgproc.line(histogram,
@@ -115,10 +115,45 @@ public class ImageManipulator
                     new Point(i, counts[i]),
                     new Scalar(0, 0, 0),
                     2, 8, 0);
-            sb.append(counts[i]);
-            if (counts.length -1 != i) sb.append(',');
+//            sb.append(counts[i]);
+//            if (counts.length -1 != i) sb.append(',');
         }
-        System.out.println(sb.toString());
+//        System.out.println(sb.toString());
+        return histogram;
+    }
+
+    public static Mat manualCalculationHistogramRows(Mat src)
+    {
+        int[] counts = new int[src.rows()];
+
+        for (int col = 0; col < src.cols(); col++) {
+            for (int row = 0; row < src.rows(); row++)
+            {
+                if (src.get(row, col)[0] == 0d) // is black
+                {
+                    counts[row] += 1;
+                }
+            }
+        }
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+        for (int count : counts) {
+            min = Math.min(min, count);
+            max = Math.max(max, count);
+        }
+
+//        StringBuilder sb = new StringBuilder();
+        Mat histogram = new Mat(counts.length, max, CvType.CV_8UC3, new Scalar(255d, 255d, 255d));
+        for (int i = 0; i < counts.length; i++) {
+            Imgproc.line(histogram,
+                    new Point(0, i),
+                    new Point(counts[i], i),
+                    new Scalar(0, 0, 0),
+                    2, 8, 0);
+//            sb.append(counts[i]);
+//            if (counts.length -1 != i) sb.append(',');
+        }
+//        System.out.println(sb.toString());
         return histogram;
     }
 //        Imgproc.adaptiveThreshold(m, m2, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2);
