@@ -8,22 +8,18 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by sal on 02/11/15.
  */
 public class ImageManipulator
 {
-    /**
-     * This function aims to verify that a filepath is valid to load an image.
-     * @param filepath the path to verify
-     * @return true if the path is not null, the file exists and it's an image, false otherwise.
-     */
-    private static boolean isAValidFilePath(String filepath)
+    public enum HistType
     {
-        if (filepath == null) return false;
-        File f = new File(filepath);
-        return f.isFile() && f.exists();
+        Rows,
+        Columns
     }
 
     /**
@@ -59,12 +55,6 @@ public class ImageManipulator
         return dest;
     }
 
-    public static Mat noiseSuppression(Mat src)
-    {
-        assert src != null : "Invalid matrix: null value";
-        return applyOtsuBinarysation(applyGaussianBlur(src));
-    }
-
     /**
      * Implemented from the given examples of OpenCV, doesn't work on Binarized images
      * @param src
@@ -95,85 +85,90 @@ public class ImageManipulator
     /**
      * Generates an histogram of black pixels counting the columns occurrences
      * @param src a binarized image
-     * @return an histogram of the columns
+     * @return an histogram of the columns as an array of integers
      */
-    public static Mat manualCalculationHistogramColumns(Mat src)
+    public static int[] manualCalculationHistogramColumns(Mat src)
     {
-        int[] counts = new int[src.cols()];
+        int[] hist = new int[src.cols()];
         for (int row = 0; row < src.rows(); row++)
         {
             for (int col = 0; col < src.cols(); col++)
             {
                 if (src.get(row, col)[0] == 0d) // is black
                 {
-                    counts[col] += 1;
+                    hist[col] += 1;
                 }
             }
         }
-
-        int min = Integer.MAX_VALUE;
-        int max = Integer.MIN_VALUE;
-        for (int count : counts)
-        {
-            min = Math.min(min, count);
-            max = Math.max(max, count);
-        }
-
-//        StringBuilder sb = new StringBuilder();
-        Mat histogram = new Mat(max, counts.length, CvType.CV_8UC3, new Scalar(255d, 255d, 255d));
-        for (int i = 0; i < counts.length; i++)
-        {
-            Imgproc.line(histogram,
-                    new Point(i, 0),
-                    new Point(i, counts[i]),
-                    new Scalar(0, 0, 0),
-                    2, 8, 0);
-//            sb.append(counts[i]);
-//            if (counts.length -1 != i) sb.append(',');
-        }
-//        System.out.println(sb.toString());
-        return histogram;
+        return hist;
     }
 
     /**
      * Generates an histogram of black pixels counting the rows occurrences
      * @param src a binarized image
-     * @return an histogram of the rows
+     * @return an histogram of the rows as an array of integers
      */
-    public static Mat manualCalculationHistogramRows(Mat src)
+    public static int[] manualCalculationHistogramRows(Mat src)
     {
-        int[] counts = new int[src.rows()];
-
+        int[] hist = new int[src.rows()];
         for (int col = 0; col < src.cols(); col++)
         {
             for (int row = 0; row < src.rows(); row++)
             {
                 if (src.get(row, col)[0] == 0d) // is black
                 {
-                    counts[row] += 1;
+                    hist[row] += 1;
                 }
             }
         }
+        return hist;
+    }
 
+    public static Mat drawHistogram(int[] hist, HistType type)
+    {
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
-        for (int count : counts)
+        for (int value : hist)
         {
-            min = Math.min(min, count);
-            max = Math.max(max, count);
+            min = Math.min(min, value);
+            max = Math.max(max, value);
         }
 
-//        StringBuilder sb = new StringBuilder();
-        Mat histogram = new Mat(counts.length, max, CvType.CV_8UC3, new Scalar(255d, 255d, 255d));
-        for (int i = 0; i < counts.length; i++)
+        switch (type)
         {
+            case Rows:
+                return drawHistogram(hist, max, hist.length, new Scalar(255d, 255d, 255d), new Scalar(0, 0, 0), type);
+            case Columns:
+                return drawHistogram(hist, hist.length, max, new Scalar(255d, 255d, 255d), new Scalar(0, 0, 0), type);
+        }
+        return null;
+    }
+
+    private static Mat drawHistogram(int[] hist, int width, int height, Scalar background, Scalar fill, HistType type)
+    {
+//        StringBuilder sb = new StringBuilder();
+        Mat histogram = new Mat(width, height, CvType.CV_8UC3, background);
+        for (int i = 0; i < hist.length; i++)
+        {
+            Point start = null, end = null;
+            switch (type)
+            {
+                case Rows:
+                    start = new Point(i, 0);
+                    end = new Point(i, hist[i]);
+                    break;
+                case Columns:
+                    start = new Point(0, i);
+                    end = new Point(hist[i], i);
+                    break;
+            }
             Imgproc.line(histogram,
-                    new Point(0, i),
-                    new Point(counts[i], i),
-                    new Scalar(0, 0, 0),
+                    start,
+                    end,
+                    fill,
                     2, 8, 0);
-//            sb.append(counts[i]);
-//            if (counts.length -1 != i) sb.append(',');
+//            sb.append(hist[i]);
+//            if (hist.length -1 != i) sb.append(',');
         }
 //        System.out.println(sb.toString());
         return histogram;
