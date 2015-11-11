@@ -75,7 +75,6 @@ public class HomeController
                     box.getChildren().add(addReturnButton());
                     root.setCenter(box);
                     Classifier c = new Classifier(selectedFile, box);
-                    c.start();
                 }
             });
         return button;

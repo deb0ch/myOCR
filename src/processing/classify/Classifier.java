@@ -1,14 +1,11 @@
 package processing.classify;
 
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import processing.pre.ImageManipulator;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -21,26 +18,12 @@ import java.util.logging.Logger;
 public class Classifier
 {
 
-    private File img;
-    private Pane root;
-
     public Classifier(File img, Pane root)
     {
-        this.setImg(img);
-        this.setRoot(root);
+        this.start(img, root);
     }
 
-    public void setImg(File img)
-    {
-        this.img = img;
-    }
-
-    public void setRoot(Pane root)
-    {
-        this.root = root;
-    }
-
-    public void start()
+    private void start(File img, Pane root)
     {
 
         Mat m = null;
@@ -64,7 +47,7 @@ public class Classifier
 
             m = squareMat(m);
 
-            showMat(m);
+            ImageManipulator.showMat(root, m);
             System.out.println("elem = " + Arrays.toString(m.get(0, 0)));
         }
         else
@@ -111,24 +94,6 @@ public class Classifier
             }
         }
         return new Rect(start_x, start_y, end_x - start_x, end_y - start_y);
-    }
-
-    private Image matToImage(Mat mat)
-    {
-        MatOfByte byteMat = new MatOfByte();
-        Imgcodecs.imencode(".bmp", mat, byteMat);
-        return new Image(new ByteArrayInputStream(byteMat.toArray()));
-    }
-
-    private void showMat(Mat mat)
-    {
-        Image image = matToImage(mat);
-        ImageView imv = new ImageView();
-        imv.setImage(image);
-        imv.setFitWidth(300);
-        imv.setPreserveRatio(true);
-        imv.setSmooth(false);
-        root.getChildren().add(imv);
     }
 
     private Mat squareMat(Mat m)
