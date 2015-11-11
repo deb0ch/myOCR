@@ -3,6 +3,7 @@ package processing.pre;
 import javafx.scene.layout.Pane;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
+import utils.ErrorHandling;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,19 +23,23 @@ public class LettersSplitter {
         }
         catch (IOException ioe)
         {
-            Logger.getGlobal().log(Level.SEVERE, ioe.getMessage());
+            ErrorHandling.logAndExit(Level.SEVERE, ioe.getMessage());
         }
-        // threshold
-        if (m != null && !m.empty())
+        assert m != null;
+        if (!m.empty())
         {
+            // threshold
             m = ImageManipulator.applyOtsuBinarysation(m);
 
-            ImageManipulator.showMat(root, m);
-            ImageManipulator.showMat(root, ImageManipulator.drawHistogram(ImageManipulator.manualCalculationHistogramColumns(m), ImageManipulator.HistType.Columns));
-            ImageManipulator.showMat(root, ImageManipulator.drawHistogram(ImageManipulator.manualCalculationHistogramRows(m), ImageManipulator.HistType.Rows));
+            int[] colunmsHistogram = ImageManipulator.manualCalculationHistogramColumns(m);
+            int[] rowsHistogram = ImageManipulator.manualCalculationHistogramRows(m);
+            ;
+                    ImageManipulator.showMat(root, m);
+            ImageManipulator.showMat(root, ImageManipulator.drawHistogram(colunmsHistogram, ImageManipulator.HistType.Columns));
+            ImageManipulator.showMat(root, ImageManipulator.drawHistogram(rowsHistogram, ImageManipulator.HistType.Rows));
         }
         else
-            Logger.getGlobal().log(Level.SEVERE, "File is not an image");
+            ErrorHandling.log(Level.WARNING, "Not an image");
         // histograms
     }
 }

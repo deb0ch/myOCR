@@ -5,6 +5,7 @@ import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import processing.pre.ImageManipulator;
+import utils.ErrorHandling;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +26,6 @@ public class Classifier
 
     private void start(File img, Pane root)
     {
-
         Mat m = null;
         try
         {
@@ -33,7 +33,7 @@ public class Classifier
         }
         catch (IOException ioe)
         {
-            Logger.getGlobal().log(Level.SEVERE, ioe.getMessage());
+            ErrorHandling.logAndExit(Level.SEVERE, ioe.getMessage());
         }
         if (m != null && !m.empty())
         {
@@ -51,7 +51,7 @@ public class Classifier
             System.out.println("elem = " + Arrays.toString(m.get(0, 0)));
         }
         else
-            Logger.getGlobal().log(Level.SEVERE, "File is not an image");
+            ErrorHandling.log(Level.WARNING, "Not an image");
     }
 
     private Rect findLetterBounds(Mat m)
