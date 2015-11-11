@@ -4,9 +4,12 @@ import javafx.scene.layout.Pane;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 import utils.ErrorHandling;
+import utils.Pair;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,18 +26,56 @@ public class LettersSplitter
 
     public LettersSplitter(File img, Pane root)
     {
-        this.setImg(img);
-        this.setRoot(root);
-        this.binarize();
-        this.calculateHistograms();
-        this.showDebug();
+        setImg(img);
+        setRoot(root);
+        binarize();
+        calculateHistograms();
+        split();
+        showDebug();
     }
 
-    private void showDebug() {
+    private void split()
+    {
+        assert columnsHistogram != null : "Cannot proceed with null histogram";
+        assert rowsHistogram != null : "Cannot proceed with null histogram";
+
+        int rowStart = -1;
+        int rowEnd = -1;
+
+        List<Pair<Integer, Integer>> boundaries = new LinkedList<>();
+        int start = -1, end = -1;
+        for (int i = 0; i < columnsHistogram.length; i++)
+        {
+            if (columnsHistogram[i] != 0 && start == -1)
+            {
+                start = i;
+            }
+            else if (start != -1 && columnsHistogram[i] == 0)
+            {
+                end = i;
+            }
+            if (start != -1 && end != -1)
+            {
+                boundaries.add(new Pair<>(start, end));
+                start = -1;
+                end = -1;
+            }
+        }
+        // splitting letters
+        List<Mat> letters = new LinkedList<>();
+        for (Pair<Integer, Integer> p: boundaries)
+        {
+//            letters.add(img.submat());
+        }
+    }
+
+    private void showDebug()
+    {
         assert img != null : "Cannot proceed with null matrices";
         assert !img.empty() : "Not an image";
         assert columnsHistogram != null : "Cannot proceed with null histogram";
         assert rowsHistogram != null : "Cannot proceed with null histogram";
+
         // first draw our image
         ImageManipulator.showMat(root, img);
         // then draw its histograms
