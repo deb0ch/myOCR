@@ -3,10 +3,7 @@ package processing.classify;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.Rect;
-import org.opencv.core.Size;
+import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import processing.pre.ImageManipulator;
@@ -64,6 +61,8 @@ public class Classifier
             Rect r = findLetterBounds(m);
 
             m = m.submat(r.y, r.y + r.height, r.x, r.x + r.width);
+
+            m = squareMat(m);
 
             showMat(m);
             System.out.println("elem = " + Arrays.toString(m.get(0, 0)));
@@ -130,5 +129,32 @@ public class Classifier
         imv.setPreserveRatio(true);
         imv.setSmooth(false);
         root.getChildren().add(imv);
+    }
+
+    private Mat squareMat(Mat m)
+    {
+        Mat nm = new Mat(Math.max(m.width(), m.height()), Math.max(m.width(), m.height()), CvType.CV_8U, new Scalar(255));
+
+        if (m.width() == nm.width())
+        {
+            for (int i = 0; i < nm.width(); ++i)
+            {
+                for (int j = 0; j < m.height(); ++j)
+                {
+                    nm.put(j + (nm.height() - m.height()) / 2, i, m.get(j, i));
+                }
+            }
+        }
+        else if (m.height() == nm.height())
+        {
+            for (int i = 0; i < nm.height(); ++i)
+            {
+                for (int j = 0; j < m.width(); ++j)
+                {
+                    nm.put(i, j + (nm.width() - m.width()) / 2, m.get(i, j));
+                }
+            }
+        }
+        return nm;
     }
 }
