@@ -31,7 +31,7 @@ public class LettersSplitter
         binarize();
         calculateHistograms();
         split();
-        showDebug();
+//        showDebug();
     }
 
     private void split()
@@ -41,6 +41,20 @@ public class LettersSplitter
 
         int rowStart = -1;
         int rowEnd = -1;
+
+        int j = 0;
+        while (j < rowsHistogram.length && rowStart == -1)
+        {
+            if (rowsHistogram[j] != 0) rowStart = j;
+            j++;
+        }
+
+        j = rowsHistogram.length - 1;
+        while (j > -1 && rowEnd == -1)
+        {
+            if (rowsHistogram[j] != 0) rowEnd = j;
+            j--;
+        }
 
         List<Pair<Integer, Integer>> boundaries = new LinkedList<>();
         int start = -1, end = -1;
@@ -61,11 +75,18 @@ public class LettersSplitter
                 end = -1;
             }
         }
+
+        assert rowEnd != -1 && rowStart != -1;
         // splitting letters
         List<Mat> letters = new LinkedList<>();
         for (Pair<Integer, Integer> p: boundaries)
         {
-//            letters.add(img.submat());
+            letters.add(img.submat(rowStart, rowEnd, p.getL(), p.getR()));
+        }
+        // debug
+        for (Mat m: letters)
+        {
+            ImageManipulator.showMat(root, m);
         }
     }
 
