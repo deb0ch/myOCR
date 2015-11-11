@@ -1,14 +1,13 @@
 package controllers;
 
-import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import processing.classify.Classifier;
+import processing.pre.LettersSplitter;
 
 import java.io.File;
 
@@ -25,7 +24,30 @@ public class HomeController
     @FXML
     private void initialize()
     {
-        root.setCenter(new HBox(addOpenFileButton()));
+        VBox center = new VBox();
+        center.getChildren().addAll(addOpenFileButton(), addOpenWordButton());
+        root.setCenter(center);
+    }
+
+    private Button addOpenWordButton()
+    {
+        FileChooser fileChooser = addFileChooser();
+        Button button = new Button("Open word img");
+        button.setOnAction(event ->
+        {
+            selectedFile = fileChooser.showOpenDialog(null);
+            event.consume();
+            if (selectedFile != null)
+            {
+                root.getChildren().clear();
+                VBox center = new VBox();
+                HBox imgsBox = new HBox();
+                center.getChildren().addAll(addReturnButton(), imgsBox);
+                root.setCenter(center);
+                new LettersSplitter(selectedFile, imgsBox);
+            }
+        });
+        return button;
     }
 
     private FileChooser addFileChooser() {
@@ -66,7 +88,7 @@ public class HomeController
         {
             event.consume();
             root.getChildren().clear();
-            root.setCenter(new HBox(addOpenFileButton()));
+            this.initialize();
         });
         return button;
     }

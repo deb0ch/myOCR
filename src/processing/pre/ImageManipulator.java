@@ -1,15 +1,15 @@
 package processing.pre;
 
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import java.io.File;
-import java.util.Arrays;
+import java.io.ByteArrayInputStream;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by sal on 02/11/15.
@@ -137,9 +137,9 @@ public class ImageManipulator
         switch (type)
         {
             case Rows:
-                return drawHistogram(hist, max, hist.length, new Scalar(255d, 255d, 255d), new Scalar(0, 0, 0), type);
-            case Columns:
                 return drawHistogram(hist, hist.length, max, new Scalar(255d, 255d, 255d), new Scalar(0, 0, 0), type);
+            case Columns:
+                return drawHistogram(hist, max, hist.length, new Scalar(255d, 255d, 255d), new Scalar(0, 0, 0), type);
         }
         return null;
     }
@@ -154,12 +154,12 @@ public class ImageManipulator
             switch (type)
             {
                 case Rows:
-                    start = new Point(i, 0);
-                    end = new Point(i, hist[i]);
-                    break;
-                case Columns:
                     start = new Point(0, i);
                     end = new Point(hist[i], i);
+                    break;
+                case Columns:
+                    start = new Point(i, 0);
+                    end = new Point(i, hist[i]);
                     break;
             }
             Imgproc.line(histogram,
@@ -172,5 +172,23 @@ public class ImageManipulator
         }
 //        System.out.println(sb.toString());
         return histogram;
+    }
+
+    public static Image matToImage(Mat mat)
+    {
+        MatOfByte byteMat = new MatOfByte();
+        Imgcodecs.imencode(".bmp", mat, byteMat);
+        return new Image(new ByteArrayInputStream(byteMat.toArray()));
+    }
+
+    public static void showMat(Pane root, Mat mat)
+    {
+        Image image = matToImage(mat);
+        ImageView imv = new ImageView();
+        imv.setImage(image);
+//        imv.setFitWidth(300);
+        imv.setPreserveRatio(true);
+        imv.setSmooth(false);
+        root.getChildren().add(imv);
     }
 }
