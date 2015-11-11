@@ -154,12 +154,12 @@ public class ImageManipulator
             switch (type)
             {
                 case Rows:
-                    start = new Point(i, 0);
-                    end = new Point(i, hist[i]);
-                    break;
-                case Columns:
                     start = new Point(0, i);
                     end = new Point(hist[i], i);
+                    break;
+                case Columns:
+                    start = new Point(i, 0);
+                    end = new Point(i, hist[i]);
                     break;
             }
             Imgproc.line(histogram,
