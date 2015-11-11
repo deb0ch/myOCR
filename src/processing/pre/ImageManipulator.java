@@ -10,6 +10,8 @@ import org.opencv.imgproc.Imgproc;
 import java.io.ByteArrayInputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by sal on 02/11/15.
@@ -137,9 +139,15 @@ public class ImageManipulator
         switch (type)
         {
             case Rows:
+<<<<<<< HEAD
                 return drawHistogram(hist, hist.length, max, new Scalar(255d, 255d, 255d), new Scalar(0, 0, 0), type);
             case Columns:
                 return drawHistogram(hist, max, hist.length, new Scalar(255d, 255d, 255d), new Scalar(0, 0, 0), type);
+=======
+                return drawHistogram(hist, max, hist.length, new Scalar(255d, 255d, 255d), new Scalar(0, 0, 0), type);
+            case Columns:
+                return drawHistogram(hist, hist.length, max, new Scalar(255d, 255d, 255d), new Scalar(0, 0, 0), type);
+>>>>>>> better MVC implementation with JavaFX Application and control chain is restored
         }
         return null;
     }
@@ -154,6 +162,7 @@ public class ImageManipulator
             switch (type)
             {
                 case Rows:
+<<<<<<< HEAD
                     start = new Point(0, i);
                     end = new Point(hist[i], i);
                     break;
@@ -161,6 +170,15 @@ public class ImageManipulator
                     start = new Point(i, 0);
                     end = new Point(i, hist[i]);
                     break;
+=======
+                    start = new Point(i, 0);
+                    end = new Point(i, hist[i]);
+                    break;
+                case Columns:
+                    start = new Point(0, i);
+                    end = new Point(hist[i], i);
+                    break;
+>>>>>>> better MVC implementation with JavaFX Application and control chain is restored
             }
             Imgproc.line(histogram,
                     start,
