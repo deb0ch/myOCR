@@ -50,6 +50,10 @@ public class OCRApplication extends Application
 
                 m = m.submat(r.y, r.y + r.height, r.x, r.x + r.width);
 
+                //Core.flip(m.t(), m, 0);
+
+                m = squareMat(m);
+
                 showMat(primaryStage, m);
                 System.out.println("elem = " + Arrays.toString(m.get(0, 0)));
             }
@@ -58,6 +62,33 @@ public class OCRApplication extends Application
         }
         else
             System.out.println(USAGE);
+    }
+
+    private Mat squareMat(Mat m)
+    {
+        Mat nm = new Mat(Math.max(m.width(), m.height()), Math.max(m.width(), m.height()), CvType.CV_8U, new Scalar(255));
+
+        if (m.width() == nm.width())
+        {
+            for (int i = 0; i < nm.width(); ++i)
+            {
+                for (int j = 0; j < m.height(); ++j)
+                {
+                    nm.put(j + (nm.height() - m.height()) / 2, i, m.get(j, i));
+                }
+            }
+        }
+        else if (m.height() == nm.height())
+        {
+            for (int i = 0; i < nm.height(); ++i)
+            {
+                for (int j = 0; j < m.width(); ++j)
+                {
+                    nm.put(i, j + (nm.width() - m.width()) / 2, m.get(i, j));
+                }
+            }
+        }
+        return nm;
     }
 
     private Rect findLetterBounds(Mat m)
