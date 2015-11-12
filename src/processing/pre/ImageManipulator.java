@@ -47,6 +47,7 @@ public class ImageManipulator
     public static Mat applyOtsuBinarysation(Mat src)
     {
         assert src != null : "Invalid matrix: null value";
+        assert !src.empty() : "Invalid img passed: empty matrices";
 
         Mat dest = new Mat();
         int thresh = 0;

@@ -1,6 +1,8 @@
 package processing.pre;
 
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 import utils.ErrorHandling;
@@ -11,12 +13,11 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by sal on 11/11/15.
  */
-public class LettersSplitter
+public class WordsSplitter
 {
 
     private Mat img = null;
@@ -24,7 +25,7 @@ public class LettersSplitter
     private int[] columnsHistogram = null;
     private int[] rowsHistogram = null;
 
-    public LettersSplitter(File img, Pane root)
+    public WordsSplitter(File img, Pane root)
     {
         setImg(img);
         setRoot(root);
@@ -33,7 +34,7 @@ public class LettersSplitter
         showDebug();
     }
 
-    public List<Mat> split()
+    public List<List<Mat>> split()
     {
         if (img == null) return new LinkedList<>();
         assert columnsHistogram != null : "Cannot proceed with null histogram";
@@ -57,6 +58,7 @@ public class LettersSplitter
         }
 
         List<Pair<Integer, Integer>> boundaries = new LinkedList<>();
+        List<Integer> distances = new LinkedList<>();
         int start = -1, end = -1;
         for (int i = 0; i < columnsHistogram.length; i++)
         {
@@ -71,19 +73,40 @@ public class LettersSplitter
             if (start != -1 && end != -1)
             {
                 boundaries.add(new Pair<>(start, end));
+                // calculate dist between letters
+                if (boundaries.size() > 1)
+                {
+                    Pair<Integer, Integer> previous = boundaries.get(boundaries.size() - 2);
+                    distances.add(start - previous.getR());
+                }
                 start = -1;
                 end = -1;
             }
         }
+        // calculate average dist between all letters found in a line
+        double average = 0;
+        // find dist greater than the average distance found
+        for (Integer dist: distances)
+        {
+            average += dist;
+        }
+        assert !distances.isEmpty();
+        average = average/distances.size();
 
         // splitting letters
         List<Mat> letters = new LinkedList<>();
+        List<List<Mat>> words = new LinkedList<>();
+        int i = 0;
         for (Pair<Integer, Integer> p: boundaries)
         {
             letters.add(img.submat(rowStart, rowEnd, p.getL(), p.getR()));
+            if (distances.size() > i && distances.get(i++) > average)
+            {
+                words.add(letters);
+                letters = new LinkedList<>();
+            }
         }
-
-        return letters;
+        return words;
     }
 
     private void showDebug()
@@ -102,10 +125,17 @@ public class LettersSplitter
         ImageManipulator.showMat(root, colsMat);
         ImageManipulator.showMat(root, rowsMat);
         // show letters split
-        for (Mat m: split())
+        VBox tmp = new VBox();
+        for (List<Mat> l: split())
         {
-            ImageManipulator.showMat(root, m);
+            HBox tmp2 = new HBox();
+            for (Mat m: l)
+            {
+                ImageManipulator.showMat(tmp2, m);
+            }
+            tmp.getChildren().add(tmp2);
         }
+        root.getChildren().add(tmp);
     }
 
     private void calculateHistograms()

@@ -2,12 +2,14 @@ package controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import processing.classify.Classifier;
 import processing.pre.LettersSplitter;
+import processing.pre.WordsSplitter;
 
 import java.io.File;
 
@@ -43,8 +45,10 @@ public class HomeController
                 VBox center = new VBox();
                 HBox imgsBox = new HBox();
                 center.getChildren().addAll(addReturnButton(), imgsBox);
-                root.setCenter(center);
-                new LettersSplitter(selectedFile, imgsBox);
+                ScrollPane scrollPane = new ScrollPane(center);
+                root.setCenter(scrollPane);
+//                new LettersSplitter(selectedFile, imgsBox);
+                new WordsSplitter(selectedFile, imgsBox);
             }
         });
         return button;
