@@ -9,6 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import processing.classify.Classifier;
 import processing.pre.LettersSplitter;
+import processing.pre.LinesSplitter;
 import processing.pre.WordsSplitter;
 
 import java.io.File;
@@ -48,7 +49,8 @@ public class HomeController
                 ScrollPane scrollPane = new ScrollPane(center);
                 root.setCenter(scrollPane);
 //                new LettersSplitter(selectedFile, imgsBox);
-                new WordsSplitter(selectedFile, imgsBox);
+//                new WordsSplitter(selectedFile, imgsBox);
+                new LinesSplitter(selectedFile, imgsBox);
             }
         });
         return button;
