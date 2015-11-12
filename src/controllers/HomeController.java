@@ -50,12 +50,13 @@ public class HomeController
         return button;
     }
 
-    private FileChooser addFileChooser() {
+    private FileChooser addFileChooser()
+    {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open an Image");
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
         fileChooser.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("All images", "*.jpg", "*.png", "*.jp2", "*.jpeg")
+                new FileChooser.ExtensionFilter("All images", "*.jpg", "*.png", "*.jp2", "*.jpeg")
         );
         return fileChooser;
     }
@@ -65,18 +66,18 @@ public class HomeController
         FileChooser fileChooser = addFileChooser();
         Button button = new Button("Open file");
         button.setOnAction(event ->
+        {
+            selectedFile = fileChooser.showOpenDialog(null);
+            event.consume();
+            if (selectedFile != null)
             {
-                selectedFile = fileChooser.showOpenDialog(null);
-                event.consume();
-                if (selectedFile != null)
-                {
-                    root.getChildren().clear();
-                    HBox box = new HBox();
-                    box.getChildren().add(addReturnButton());
-                    root.setCenter(box);
-                    Classifier c = new Classifier(selectedFile, box);
-                }
-            });
+                root.getChildren().clear();
+                HBox box = new HBox();
+                box.getChildren().add(addReturnButton());
+                root.setCenter(box);
+                Classifier c = new Classifier(selectedFile, box);
+            }
+        });
         return button;
     }
 
