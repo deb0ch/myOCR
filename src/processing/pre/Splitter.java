@@ -2,8 +2,10 @@ package processing.pre;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.util.Pair;
 import org.opencv.core.Mat;
 import utils.ErrorHandling;
@@ -25,7 +27,7 @@ public abstract class Splitter
     private int[] rowsHistogram = new int[0];
 
     @Nullable
-    private Pane root = null; // used to prompt debug info in a javafx application
+    protected Pane root = null; // used to prompt debug info in a javafx application
 
     /**
      * A Splitter split an image pixel, in a given way.
@@ -132,13 +134,6 @@ public abstract class Splitter
         Mat rowsMat = ImageManipulator.drawHistogram(rowsHistogram, ImageManipulator.HistType.Rows);
         ImageManipulator.showMat(root, colsMat);
         ImageManipulator.showMat(root, rowsMat);
-        // show split results
-        VBox tmp = new VBox();
-        for (Mat m: split())
-        {
-            ImageManipulator.showMat(tmp, m);
-        }
-        root.getChildren().add(tmp);
     }
 
     /**
@@ -165,8 +160,8 @@ public abstract class Splitter
             ErrorHandling.log
                     (
                             Level.WARNING,
-                            String.format("img is empty: %s\ndata address is null: %d",
-                                    this.img.empty(), this.img.dataAddr())
+                            String.format("%s: img is empty: %s\ndata address is null: %d",
+                                    getClass().getName(), this.img.empty(), this.img.dataAddr())
                     );
             return false;
         }
@@ -275,5 +270,11 @@ public abstract class Splitter
     public @NotNull Mat getImg()
     {
         return img;
+    }
+
+    protected void setRootBackgroundColor(Color color)
+    {
+        if (this.root != null)
+            this.root.setBackground(new Background(new BackgroundFill(color, null, null)));
     }
 }

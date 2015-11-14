@@ -3,6 +3,7 @@ package processing.pre;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.util.Pair;
 import org.opencv.core.Mat;
 import utils.ErrorHandling;
@@ -24,12 +25,12 @@ public class WordsSplitter extends Splitter
     public WordsSplitter(@NotNull Mat img, @Nullable Pane root)
     {
         super(img, root);
+        setRootBackgroundColor(Color.ORANGE);
     }
 
     @Override
     public List<Mat> split()
     {
-        int[] rowsHistogram = getRowsHistogram();
         int[] columnsHistogram = getColumnsHistogram();
         Pair<Integer, Integer> startAndEndRow = findStartAndEnd(getRowsHistogram());
         int rowStart = startAndEndRow.getKey();
@@ -37,9 +38,11 @@ public class WordsSplitter extends Splitter
         if (rowEnd == -1 || rowStart == -1)
         {
             ErrorHandling.log(Level.WARNING,
-                    String.format("wrong values:(%s, %s)",
+                    String.format("wrong values:(%s, %s): %s",
                             rowStart,
-                            rowEnd));
+                            rowEnd,
+                            getClass().getName(),
+                            getClass()));
             return new LinkedList<>();
         }
 
@@ -73,7 +76,7 @@ public class WordsSplitter extends Splitter
         if (distances.isEmpty())
         {
             ErrorHandling.log(Level.WARNING,
-                    "No distances were found.");
+                    String.format("No distances were found: %s", getClass().getName()));
             return new LinkedList<>();
         }
 
@@ -88,20 +91,19 @@ public class WordsSplitter extends Splitter
 
         // splitting words
         List<Mat> words = new LinkedList<>();
-        int i = 0;
         int startIndex = -1;
-        for (Pair<Integer, Integer> p: boundaries)
+        for (int i = 0; i < boundaries.size(); i++)
         {
+            Pair<Integer, Integer> p = boundaries.get(i);
             if (startIndex == -1)
             {
                 startIndex = p.getKey();
             }
-            else if (distances.get(i) > average)
+            else if (distances.size() <= i || distances.get(i) > average + 2)
             {
                 words.add(getImg().submat(rowStart, rowEnd, startIndex, p.getValue()));
                 startIndex = -1;
             }
-            i += 1;
         }
         return words;
     }

@@ -51,7 +51,7 @@ public class Classifier
             System.out.println("elem = " + Arrays.toString(m.get(0, 0)));
         }
         else
-            ErrorHandling.log(Level.WARNING, "Not an image");
+            ErrorHandling.log(Level.WARNING, String.format("%s Not an image", getClass().getName()));
     }
 
     private Rect findLetterBounds(Mat m)

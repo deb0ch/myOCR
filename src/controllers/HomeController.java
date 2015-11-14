@@ -69,14 +69,18 @@ public class HomeController
                 {
                     //detach lines
                     LinesSplitter linesSplitter = new LinesSplitter(m, imgsBox);
+                    VBox tmpBox = new VBox();
                     for (Mat line: linesSplitter.split())
                     {
-                        WordsSplitter wordsSplitter = new WordsSplitter(line, imgsBox);
+                        WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox);
+                        HBox tmpBox2 = new HBox();
                         for (Mat word: wordsSplitter.split())
                         {
-                            /*LettersSplitter lettersSplitter = */new LettersSplitter(word, imgsBox);
+                            LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2);
                         }
+                        tmpBox.getChildren().add(tmpBox2);
                     }
+                    imgsBox.getChildren().add(tmpBox);
                 }
             }
         });

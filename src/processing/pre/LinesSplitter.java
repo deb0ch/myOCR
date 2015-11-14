@@ -3,6 +3,7 @@ package processing.pre;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.util.Pair;
 import org.opencv.core.Mat;
 import utils.ErrorHandling;
@@ -26,6 +27,7 @@ public class LinesSplitter extends Splitter {
     public LinesSplitter(@NotNull Mat img, @Nullable Pane root)
     {
         super(img, root);
+        setRootBackgroundColor(Color.RED);
     }
 
     @Override
@@ -39,9 +41,10 @@ public class LinesSplitter extends Splitter {
         if (startCol == -1 || endCol == -1)
         {
             ErrorHandling.log(Level.WARNING,
-                    String.format("wrong values:(%s, %s)",
+                    String.format("wrong values:(%s, %s): %s",
                             startCol,
-                            endCol));
+                            endCol,
+                            getClass().getName()));
             return new LinkedList<>();
         }
 
