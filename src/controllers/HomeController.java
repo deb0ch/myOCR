@@ -7,12 +7,20 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 import processing.classify.Classifier;
+import processing.pre.ImageManipulator;
 import processing.pre.LettersSplitter;
 import processing.pre.LinesSplitter;
 import processing.pre.WordsSplitter;
+import utils.ErrorHandling;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Created by sal on 11/11/15.
@@ -48,9 +56,28 @@ public class HomeController
                 center.getChildren().addAll(addReturnButton(), imgsBox);
                 ScrollPane scrollPane = new ScrollPane(center);
                 root.setCenter(scrollPane);
-//                new LettersSplitter(selectedFile, imgsBox);
-//                new WordsSplitter(selectedFile, imgsBox);
-                new LinesSplitter(selectedFile, imgsBox);
+                Mat m = null;
+                try
+                {
+                    m = Imgcodecs.imread(selectedFile.getCanonicalPath(), Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+                }
+                catch (IOException ioe)
+                {
+                    ErrorHandling.logAndExit(Level.SEVERE, ioe.getMessage());
+                }
+                if (m != null)
+                {
+                    //detach lines
+                    LinesSplitter linesSplitter = new LinesSplitter(m, imgsBox);
+                    for (Mat line: linesSplitter.split())
+                    {
+                        WordsSplitter wordsSplitter = new WordsSplitter(line, imgsBox);
+                        for (Mat word: wordsSplitter.split())
+                        {
+                            /*LettersSplitter lettersSplitter = */new LettersSplitter(word, imgsBox);
+                        }
+                    }
+                }
             }
         });
         return button;
