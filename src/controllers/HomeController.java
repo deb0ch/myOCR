@@ -1,10 +1,8 @@
 package controllers;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -137,7 +135,13 @@ public class HomeController
                 HBox box = new HBox();
                 box.getChildren().add(addReturnButton());
                 root.setCenter(box);
-                Classifier c = new Classifier(ImageManipulator.loadGreyImage(selectedFile), dataSetPath, box);
+                Platform.runLater(() -> {
+                    root.getChildren().clear();
+                    ProgressBar progressBar = new ProgressBar();
+                    progressBar.setProgress(0F);
+
+                    new Classifier(ImageManipulator.loadGreyImage(selectedFile), dataSetPath, box, progressBar);
+                });
             }
         });
         return button;

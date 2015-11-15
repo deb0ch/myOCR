@@ -2,6 +2,7 @@ package processing.classify;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import org.opencv.core.*;
@@ -15,8 +16,10 @@ import utils.ErrorHandling;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * Created by sal on 11/11/15.
@@ -24,10 +27,12 @@ import java.util.logging.Level;
 public class Classifier
 {
     private @NotNull String datasetPath;
+    private @NotNull ProgressBar progressBar;
 
-    public Classifier(@NotNull Mat img, @NotNull String datasetPath,@NotNull Pane root)
+    public Classifier(@NotNull Mat img, @NotNull String datasetPath, @NotNull Pane root, @NotNull ProgressBar progressBar)
     {
         this.datasetPath = datasetPath;
+        this.progressBar = progressBar;
         this.start(img, root);
     }
 
@@ -129,17 +134,13 @@ public class Classifier
     private List<File> getDirContents(String path)
     {
         File        folder = new File(path);
-        File[]      contents = folder.listFiles();
-        List<File>  files = new ArrayList<>();
 
-        if (contents == null)
+        List<File>  files = new LinkedList<>();
+        File[] filesArray = folder.listFiles();
+        if (filesArray == null)
             return files;
-        for (File f : contents)
-        {
-            if (f.isFile())
-                files.add(f);
-        }
-        return files;
+        Collections.addAll(files, filesArray);
+        return files.stream().filter(File::isFile).collect(Collectors.toList());
     }
 
     /**
