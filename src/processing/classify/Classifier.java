@@ -1,6 +1,7 @@
 package processing.classify;
 
 import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 import javafx.scene.layout.Pane;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -21,7 +22,7 @@ import java.util.logging.Level;
  */
 public class Classifier
 {
-    public Classifier(File img, Pane root)
+    public Classifier(@NotNull Mat img,@NotNull Pane root)
     {
         this.start(img, root);
     }
@@ -98,23 +99,13 @@ public class Classifier
                     '9'
             };
 
-    private void start(File img, Pane root)
+    private void start(@NotNull Mat img, @NotNull Pane root)
     {
-        Mat m = null;
-
-        try
+        if (!img.empty() && img.size().area() > 0)
         {
-            m = Imgcodecs.imread(img.getCanonicalPath(), Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
-        }
-        catch (IOException ioe)
-        {
-            ErrorHandling.logAndExit(Level.SEVERE, ioe.getMessage());
-        }
-        if (m != null && !m.empty())
-        {
-            m = this.preProc(m);
+            img = this.preProc(img);
             this.train();
-            ImageManipulator.showMat(root, m);
+            ImageManipulator.showMat(root, img);
         }
         else
             ErrorHandling.log(Level.WARNING, "Not an image");
@@ -125,7 +116,7 @@ public class Classifier
         m = ImageManipulator.applyOtsuBinarysation(m);
         Rect r = MatManipulator.findBounds(m);
         m = m.submat(r.y, r.y + r.height, r.x, r.x + r.width);
-        m = this.squareMat(m);
+        m = MatManipulator.squareMat(m);
         Imgproc.resize(m, m, new Size(24, 24));
         m = ImageManipulator.applyOtsuBinarysation(m); // Imgproc.resize may break binarization
         return m;
@@ -196,32 +187,5 @@ public class Classifier
                 });
             }
         }
-    }
-
-    private Mat squareMat(Mat m)
-    {
-        Mat nm = new Mat(Math.max(m.width(), m.height()), Math.max(m.width(), m.height()), CvType.CV_8U, new Scalar(255));
-
-        if (m.width() == nm.width())
-        {
-            for (int i = 0; i < nm.width(); ++i)
-            {
-                for (int j = 0; j < m.height(); ++j)
-                {
-                    nm.put(j + (nm.height() - m.height()) / 2, i, m.get(j, i));
-                }
-            }
-        }
-        else if (m.height() == nm.height())
-        {
-            for (int i = 0; i < nm.height(); ++i)
-            {
-                for (int j = 0; j < m.width(); ++j)
-                {
-                    nm.put(i, j + (nm.width() - m.width()) / 2, m.get(i, j));
-                }
-            }
-        }
-        return nm;
     }
 }

@@ -2,8 +2,10 @@ package processing.pre;
 
 import com.sun.istack.internal.NotNull;
 import javafx.util.Pair;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 
 /**
  * Created by sal on 15/11/15.
@@ -12,31 +14,31 @@ public class MatManipulator
 {
     public static int findUpBound(@NotNull Mat m)
     {
-        int start_x = -1;
+        int result = -1;
 
-        for (int i = 0; i < m.width() && start_x == -1; i++)
+        for (int i = 0; i < m.width() && result == -1; i++)
         {
-            for (int j = 0; j < m.height() && start_x == -1; j++)
+            for (int j = 0; j < m.height() && result == -1; j++)
             {
                 if (m.get(j, i)[0] != 255)
-                    start_x = i;
+                    result = i;
             }
         }
-        return start_x;
+        return result;
     }
 
     public static int findDownBound(@NotNull Mat m)
     {
-        int end_x = -1;
-        for (int i = m.width() - 1; i >= 0 && end_x == -1; --i)
+        int result = -1;
+        for (int i = m.width() - 1; i >= 0 && result == -1; --i)
         {
-            for (int j = 0; j < m.height() && end_x == -1; ++j)
+            for (int j = 0; j < m.height() && result == -1; ++j)
             {
                 if (m.get(j, i)[0] != 255)
-                    end_x = i;
+                    result = i;
             }
         }
-        return end_x;
+        return result;
     }
 
     public static Pair<Integer, Integer> findUpAndDownBounds(@NotNull Mat m)
@@ -51,30 +53,30 @@ public class MatManipulator
 
     private static int findRightBound(@NotNull Mat m)
     {
-        int end = -1;
-        for (int i = m.height() - 1; i >= 0 && end == -1; --i)
+        int result = -1;
+        for (int i = m.height() - 1; i >= 0 && result == -1; --i)
         {
-            for (int j = 0; j < m.width() && end == -1; ++j)
+            for (int j = 0; j < m.width() && result == -1; ++j)
             {
                 if (m.get(i, j)[0] != 255)
-                    end = i;
+                    result = i;
             }
         }
-        return 0;
+        return result;
     }
 
     private static int findLeftBound(@NotNull Mat m)
     {
-        int start = -1;
-        for (int i = 0; i < m.height() && start == -1; i++)
+        int result = -1;
+        for (int i = 0; i < m.height() && result == -1; i++)
         {
-            for (int j = 0; j < m.width() && start == -1; j++)
+            for (int j = 0; j < m.width() && result == -1; j++)
             {
                 if (m.get(i, j)[0] != 255)
-                    start = i;
+                    result = i;
             }
         }
-        return start;
+        return result;
     }
 
     public static Rect findBounds(@NotNull Mat m)
@@ -86,5 +88,36 @@ public class MatManipulator
         int start_y = leftAndRightBounds.getKey();
         int end_y = leftAndRightBounds.getValue();
         return new Rect(start_x, start_y, end_x - start_x, end_y - start_y);
+    }
+
+    public static Mat squareMat(@NotNull Mat m)
+    {
+        int max = Math.max(m.width(), m.height());
+        Mat nm = new Mat(
+                max,
+                max,
+                CvType.CV_8U, new Scalar(255));
+
+        if (m.width() == nm.width())
+        {
+            for (int i = 0; i < nm.width(); ++i)
+            {
+                for (int j = 0; j < m.height(); ++j)
+                {
+                    nm.put(j + (nm.height() - m.height()) / 2, i, m.get(j, i));
+                }
+            }
+        }
+        else if (m.height() == nm.height())
+        {
+            for (int i = 0; i < nm.height(); ++i)
+            {
+                for (int j = 0; j < m.width(); ++j)
+                {
+                    nm.put(i, j + (nm.width() - m.width()) / 2, m.get(i, j));
+                }
+            }
+        }
+        return nm;
     }
 }

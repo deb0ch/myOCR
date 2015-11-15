@@ -67,34 +67,23 @@ public class HomeController
                 center.getChildren().addAll(addReturnButton(), imgsBox);
                 ScrollPane scrollPane = new ScrollPane(center);
                 root.setCenter(scrollPane);
-                Mat m = null;
-                try
+                Mat m = ImageManipulator.loadGreyImage(selectedFile);
+                //detach lines
+                int colLimit = Integer.valueOf(colLimitField.getText());
+                int rowLimit = Integer.valueOf(rowLimitField.getText());
+                LinesSplitter linesSplitter = new LinesSplitter(m, imgsBox, colLimit, rowLimit);
+                VBox tmpBox = new VBox();
+                for (Mat line: linesSplitter.split())
                 {
-                    m = Imgcodecs.imread(selectedFile.getCanonicalPath(), Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
-                }
-                catch (IOException ioe)
-                {
-                    ErrorHandling.logAndExit(Level.SEVERE, ioe.getMessage());
-                }
-                if (m != null)
-                {
-                    //detach lines
-                    int colLimit = Integer.valueOf(colLimitField.getText());
-                    int rowLimit = Integer.valueOf(rowLimitField.getText());
-                    LinesSplitter linesSplitter = new LinesSplitter(m, imgsBox, colLimit, rowLimit);
-                    VBox tmpBox = new VBox();
-                    for (Mat line: linesSplitter.split())
+                    WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox, colLimit, rowLimit);
+                    VBox tmpBox2 = new VBox();
+                    for (Mat word: wordsSplitter.split())
                     {
-                        WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox, colLimit, rowLimit);
-                        VBox tmpBox2 = new VBox();
-                        for (Mat word: wordsSplitter.split())
-                        {
-                            LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
-                        }
-                        tmpBox.getChildren().add(tmpBox2);
+                        LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
                     }
-                    imgsBox.getChildren().add(tmpBox);
+                    tmpBox.getChildren().add(tmpBox2);
                 }
+                imgsBox.getChildren().add(tmpBox);
             }
         });
         return button;
@@ -125,7 +114,7 @@ public class HomeController
                 HBox box = new HBox();
                 box.getChildren().add(addReturnButton());
                 root.setCenter(box);
-                Classifier c = new Classifier(selectedFile, box);
+                Classifier c = new Classifier(ImageManipulator.loadGreyImage(selectedFile), box);
             }
         });
         return button;

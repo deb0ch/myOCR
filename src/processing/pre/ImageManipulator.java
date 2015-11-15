@@ -7,10 +7,14 @@ import javafx.scene.layout.Pane;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import utils.ErrorHandling;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Created by sal on 02/11/15.
@@ -81,6 +85,21 @@ public class ImageManipulator
                     new Scalar(0, 0, 0), 2, 8, 0);
         }
         return histImage;
+    }
+
+    public static @NotNull Mat loadGreyImage(@NotNull File img)
+    {
+        Mat m = null;
+        try
+        {
+            m = Imgcodecs.imread(img.getCanonicalPath(), Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+        }
+        catch (IOException ioe)
+        {
+            ErrorHandling.log(Level.SEVERE, ioe.getMessage() );
+            m = new Mat();
+        }
+        return m;
     }
 
     /**
