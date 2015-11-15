@@ -43,6 +43,7 @@ public class LettersSplitter extends Splitter
             ImageManipulator.showMat(root, letter);
         }
     }
+
     @Override
     public @NotNull List<Mat> split()
     {
