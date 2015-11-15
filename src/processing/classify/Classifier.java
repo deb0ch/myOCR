@@ -1,5 +1,6 @@
 package processing.classify;
 
+import com.sun.istack.internal.NotNull;
 import javafx.scene.layout.Pane;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -7,6 +8,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.ml.KNearest;
 import org.opencv.ml.Ml;
 import processing.pre.ImageManipulator;
+import processing.pre.MatManipulator;
 import utils.ErrorHandling;
 
 import java.io.File;
@@ -118,10 +120,10 @@ public class Classifier
             ErrorHandling.log(Level.WARNING, "Not an image");
     }
 
-    private Mat preProc(Mat m)
+    private Mat preProc(@NotNull Mat m)
     {
         m = ImageManipulator.applyOtsuBinarysation(m);
-        Rect r = this.findLetterBounds(m);
+        Rect r = MatManipulator.findBounds(m);
         m = m.submat(r.y, r.y + r.height, r.x, r.x + r.width);
         m = this.squareMat(m);
         Imgproc.resize(m, m, new Size(24, 24));
@@ -194,48 +196,6 @@ public class Classifier
                 });
             }
         }
-    }
-
-    private Rect findLetterBounds(Mat m)
-    {
-        int start_x = -1;
-        int end_x = -1;
-        int start_y = -1;
-        int end_y = -1;
-
-        for (int i = 0; i < m.width() && start_x == -1; ++i)
-        {
-            for (int j = 0; j < m.height() && start_x == -1; ++j)
-            {
-                if (m.get(j, i)[0] != 255)
-                    start_x = i;
-            }
-        }
-        for (int i = m.width() - 1; i >= 0 && end_x == -1; --i)
-        {
-            for (int j = 0; j < m.height() && end_x == -1; ++j)
-            {
-                if (m.get(j, i)[0] != 255)
-                    end_x = i;
-            }
-        }
-        for (int i = 0; i < m.height() && start_y == -1; ++i)
-        {
-            for (int j = 0; j < m.width() && start_y == -1; ++j)
-            {
-                if (m.get(i, j)[0] != 255)
-                    start_y = i;
-            }
-        }
-        for (int i = m.height() - 1; i >= 0 && end_y == -1; --i)
-        {
-            for (int j = 0; j < m.width() && end_y == -1; ++j)
-            {
-                if (m.get(i, j)[0] != 255)
-                    end_y = i;
-            }
-        }
-        return new Rect(start_x, start_y, end_x - start_x, end_y - start_y);
     }
 
     private Mat squareMat(Mat m)
