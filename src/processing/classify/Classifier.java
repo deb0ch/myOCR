@@ -23,8 +23,11 @@ import java.util.logging.Level;
  */
 public class Classifier
 {
-    public Classifier(@NotNull Mat img,@NotNull Pane root)
+    private @NotNull String datasetPath;
+
+    public Classifier(@NotNull Mat img, @NotNull String datasetPath,@NotNull Pane root)
     {
+        this.datasetPath = datasetPath;
         this.start(img, root);
     }
 
@@ -170,15 +173,13 @@ public class Classifier
      */
     private void buildDataset()
     {
-        String datasetPath = Classifier.class.getResource("./../../../resources/datasets/Hnd/").getPath();
-
         for (char c : _charClasses)
         {
-            List<File> samples = this.getDirContents(datasetPath + c);
+            List<File> samples = this.getDirContents(String.format("%s/%s", datasetPath, c));
 
             if (!samples.isEmpty())
             {
-                _dataset.put(String.valueOf(c), new ArrayList<>());
+                _dataset.put(String.valueOf(c), new LinkedList<>());
                 samples.forEach(file ->
                 {
                     Mat smp = Imgcodecs.imread(file.getPath(), Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);

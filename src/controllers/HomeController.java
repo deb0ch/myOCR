@@ -1,6 +1,5 @@
 package controllers;
 
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -9,21 +8,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import org.opencv.core.Mat;
-import org.opencv.imgcodecs.Imgcodecs;
 import processing.classify.Classifier;
 import processing.pre.ImageManipulator;
 import processing.pre.LettersSplitter;
 import processing.pre.LinesSplitter;
 import processing.pre.WordsSplitter;
-import utils.ErrorHandling;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Created by sal on 11/11/15.
@@ -34,8 +28,11 @@ public class HomeController
     private BorderPane root;
 
     private File selectedFile;
+    private String dataSetPath;
     private TextField colLimitField;
     private TextField rowLimitField;
+    private Button classifyButton;
+    private Button debugPreProcessButton;
 
     @FXML
     private void initialize()
@@ -47,14 +44,40 @@ public class HomeController
         rowLimitField = new TextField("0");
         HBox rowLimitBox = new HBox(rowLimitLabel, rowLimitField);
         HBox colLimitBox = new HBox(colLimitLabel, colLimitField);
-        center.getChildren().addAll(addOpenFileButton(), addOpenWordButton(), rowLimitBox, colLimitBox);
+        classifyButton = addClassifyButton();
+        classifyButton.setVisible(false);
+        debugPreProcessButton = addDebugPreProcessButton();
+        debugPreProcessButton.setVisible(false);
+        center.getChildren().addAll(addSelectTrainingSetDirectory(), classifyButton, debugPreProcessButton, rowLimitBox, colLimitBox);
         root.setCenter(center);
     }
 
-    private Button addOpenWordButton()
+    private HBox addSelectTrainingSetDirectory()
+    {
+        HBox hBox = new HBox();
+        Label label = new Label("Trainning Set directory: ");
+        Label value = new Label("'none'");
+        Button button = new Button("Choose");
+        button.setOnAction(event -> {
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            directoryChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+            File trainningSetDirectory = directoryChooser.showDialog(null);
+            if (trainningSetDirectory != null)
+            {
+                dataSetPath = trainningSetDirectory.getPath();
+                classifyButton.setVisible(true);
+                debugPreProcessButton.setVisible(true);
+                value.setText(dataSetPath);
+            }
+        });
+        hBox.getChildren().addAll(label, value, button);
+        return hBox;
+    }
+
+    private Button addDebugPreProcessButton()
     {
         FileChooser fileChooser = addFileChooser();
-        Button button = new Button("Open word img");
+        Button button = new Button("Debug Preprocess");
         button.setOnAction(event ->
         {
             selectedFile = fileChooser.showOpenDialog(null);
@@ -92,29 +115,29 @@ public class HomeController
     private FileChooser addFileChooser()
     {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open an Image");
+        fileChooser.setTitle("Open an Image File");
         fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("All images", "*.jpg", "*.png", "*.jp2", "*.jpeg")
+                new FileChooser.ExtensionFilter("All images", "*.jpg", "*.png", "*.jp2", ".jpeg", ".pmg")
         );
         return fileChooser;
     }
 
-    private Button addOpenFileButton()
+    private Button addClassifyButton()
     {
         FileChooser fileChooser = addFileChooser();
-        Button button = new Button("Open file");
+        Button button = new Button("Classify");
         button.setOnAction(event ->
         {
             selectedFile = fileChooser.showOpenDialog(null);
             event.consume();
-            if (selectedFile != null)
+            if (selectedFile != null && dataSetPath != null && !dataSetPath.isEmpty())
             {
                 root.getChildren().clear();
                 HBox box = new HBox();
                 box.getChildren().add(addReturnButton());
                 root.setCenter(box);
-                Classifier c = new Classifier(ImageManipulator.loadGreyImage(selectedFile), box);
+                Classifier c = new Classifier(ImageManipulator.loadGreyImage(selectedFile), dataSetPath, box);
             }
         });
         return button;
