@@ -27,12 +27,10 @@ import java.util.stream.Collectors;
 public class Classifier
 {
     private @NotNull String datasetPath;
-    private @NotNull ProgressBar progressBar;
 
-    public Classifier(@NotNull Mat img, @NotNull String datasetPath, @NotNull Pane root, @NotNull ProgressBar progressBar)
+    public Classifier(@NotNull Mat img, @NotNull String datasetPath, @NotNull Pane root)
     {
         this.datasetPath = datasetPath;
-        this.progressBar = progressBar;
         this.start(img, root);
     }
 
@@ -135,6 +133,7 @@ public class Classifier
     {
         File        folder = new File(path);
 
+
         List<File>  files = new LinkedList<>();
         File[] filesArray = folder.listFiles();
         if (filesArray == null)
@@ -151,10 +150,9 @@ public class Classifier
     {
         _dataset.forEach((key, value) ->
         {
+            _trainingSet.put(key, new LinkedList<>());
+            _testSet.put(key, new LinkedList<>());
             int i;
-
-            _trainingSet.put(key, new ArrayList<>());
-            _testSet.put(key, new ArrayList<>());
             for (i = 0; i < value.size() * ratio; i++)
             {
                 _trainingSet.get(key).add(value.get(i));
@@ -177,7 +175,6 @@ public class Classifier
         for (char c : _charClasses)
         {
             List<File> samples = this.getDirContents(String.format("%s/%s", datasetPath, c));
-
             if (!samples.isEmpty())
             {
                 _dataset.put(String.valueOf(c), new LinkedList<>());
@@ -190,5 +187,10 @@ public class Classifier
                 });
             }
         }
+    }
+
+    public void classify()
+    {
+
     }
 }

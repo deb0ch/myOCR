@@ -31,6 +31,7 @@ public class HomeController
     private TextField rowLimitField;
     private Button classifyButton;
     private Button debugPreProcessButton;
+    private Classifier classifier;
 
     @FXML
     private void initialize()
@@ -131,16 +132,14 @@ public class HomeController
             event.consume();
             if (selectedFile != null && dataSetPath != null && !dataSetPath.isEmpty())
             {
-                root.getChildren().clear();
-                HBox box = new HBox();
-                box.getChildren().add(addReturnButton());
-                root.setCenter(box);
                 Platform.runLater(() -> {
                     root.getChildren().clear();
-                    ProgressBar progressBar = new ProgressBar();
-                    progressBar.setProgress(0F);
-
-                    new Classifier(ImageManipulator.loadGreyImage(selectedFile), dataSetPath, box, progressBar);
+                    HBox box = new HBox();
+                    box.getChildren().addAll(addReturnButton(), new Label("Loading and training, please wait"));
+                    root.setCenter(box);
+                    if (classifier == null)
+                        classifier = new Classifier(ImageManipulator.loadGreyImage(selectedFile), dataSetPath, box);
+                    classifier.classify();
                 });
             }
         });
