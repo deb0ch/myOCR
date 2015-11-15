@@ -18,9 +18,19 @@ import java.util.stream.Collectors;
  */
 public class LettersSplitter extends Splitter
 {
+    public LettersSplitter(@NotNull Mat img)
+    {
+        this(img, null);
+    }
+
     public LettersSplitter(@NotNull Mat img, @Nullable Pane root)
     {
-        super(img, root);
+        this(img, root, 0, 0);
+    }
+
+    public LettersSplitter(@NotNull Mat img, @Nullable Pane root, int colLimit, int rowLimit)
+    {
+        super(img, root, colLimit, rowLimit);
         setRootBackgroundColor(Color.GREEN);
     }
 
@@ -51,9 +61,8 @@ public class LettersSplitter extends Splitter
             return new LinkedList<>();
         }
         // find boundaries of letters using the column histogram
-        List<Pair<Integer, Integer>> boundaries = this.findBoundaries(getColumnsHistogram());
+        List<Pair<Integer, Integer>> boundaries = this.findBoundaries(getColumnsHistogram(), colLimit);
         // splitting letters and returning it as a new LinkedList
-        // FIXME missing a letter
         return boundaries
                 .stream()
                 .map(p -> getImg().submat(startRow, endRow, p.getKey(), p.getValue()))

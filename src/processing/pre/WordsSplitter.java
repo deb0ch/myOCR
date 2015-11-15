@@ -24,7 +24,12 @@ public class WordsSplitter extends Splitter
 
     public WordsSplitter(@NotNull Mat img, @Nullable Pane root)
     {
-        super(img, root);
+        this(img, root, 0, 0);
+    }
+
+    public WordsSplitter(@NotNull Mat img, @Nullable Pane root, int colLimit, int rowLimit)
+    {
+        super(img, root, colLimit, rowLimit);
         setRootBackgroundColor(Color.ORANGE);
     }
 
@@ -41,8 +46,7 @@ public class WordsSplitter extends Splitter
                     String.format("wrong values:(%s, %s): %s",
                             rowStart,
                             rowEnd,
-                            getClass().getName(),
-                            getClass()));
+                            getClass().getName()));
             return new LinkedList<>();
         }
 
@@ -51,11 +55,11 @@ public class WordsSplitter extends Splitter
         int start = -1, end = -1;
         for (int i = 0; i < columnsHistogram.length; i++)
         {
-            if (columnsHistogram[i] != 0 && start == -1)
+            if (columnsHistogram[i] > colLimit && start == -1)
             {
                 start = i;
             }
-            else if (start != -1 && columnsHistogram[i] == 0)
+            else if (start != -1 && columnsHistogram[i] <= colLimit)
             {
                 end = i;
             }

@@ -1,8 +1,11 @@
 package controllers;
 
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -31,12 +34,20 @@ public class HomeController
     private BorderPane root;
 
     private File selectedFile;
+    private TextField colLimitField;
+    private TextField rowLimitField;
 
     @FXML
     private void initialize()
     {
         VBox center = new VBox();
-        center.getChildren().addAll(addOpenFileButton(), addOpenWordButton());
+        Label rowLimitLabel = new Label("row limit");
+        Label colLimitLabel = new Label("col limit");
+        colLimitField = new TextField("0");
+        rowLimitField = new TextField("0");
+        HBox rowLimitBox = new HBox(rowLimitLabel, rowLimitField);
+        HBox colLimitBox = new HBox(colLimitLabel, colLimitField);
+        center.getChildren().addAll(addOpenFileButton(), addOpenWordButton(), rowLimitBox, colLimitBox);
         root.setCenter(center);
     }
 
@@ -68,15 +79,17 @@ public class HomeController
                 if (m != null)
                 {
                     //detach lines
-                    LinesSplitter linesSplitter = new LinesSplitter(m, imgsBox);
+                    int colLimit = Integer.valueOf(colLimitField.getText());
+                    int rowLimit = Integer.valueOf(rowLimitField.getText());
+                    LinesSplitter linesSplitter = new LinesSplitter(m, imgsBox, colLimit, rowLimit);
                     VBox tmpBox = new VBox();
                     for (Mat line: linesSplitter.split())
                     {
-                        WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox);
-                        HBox tmpBox2 = new HBox();
+                        WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox, colLimit, rowLimit);
+                        VBox tmpBox2 = new VBox();
                         for (Mat word: wordsSplitter.split())
                         {
-                            LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2);
+                            LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
                         }
                         tmpBox.getChildren().add(tmpBox2);
                     }

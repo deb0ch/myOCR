@@ -26,7 +26,12 @@ public class LinesSplitter extends Splitter {
 
     public LinesSplitter(@NotNull Mat img, @Nullable Pane root)
     {
-        super(img, root);
+        this(img, root, 0, 0);
+    }
+
+    public LinesSplitter(@NotNull Mat img, @Nullable Pane root, int colLimit, int rowLimit)
+    {
+        super(img, root, colLimit, rowLimit);
         setRootBackgroundColor(Color.RED);
     }
 
@@ -48,10 +53,10 @@ public class LinesSplitter extends Splitter {
             return new LinkedList<>();
         }
 
-        List<Pair<Integer, Integer>> boundaries = this.findBoundaries(getRowsHistogram());
+        List<Pair<Integer, Integer>> boundaries = this.findBoundaries(getRowsHistogram(), rowLimit);
         return boundaries
                 .stream()
-                .map(p -> getImg().submat(p.getKey(), p.getValue(), 0, getImg().cols() - 1))
+                .map(p -> getImg().submat(p.getKey(), p.getValue(), 0, getImg().cols()))
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 }

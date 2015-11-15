@@ -29,6 +29,9 @@ public abstract class Splitter
     @Nullable
     protected Pane root = null; // used to prompt debug info in a javafx application
 
+    public int colLimit = 0;
+    public int rowLimit = 0;
+
     /**
      * A Splitter split an image pixel, in a given way.
      * @param img img the image to process
@@ -50,8 +53,25 @@ public abstract class Splitter
      */
     public Splitter(@NotNull Mat img, @Nullable Pane root)
     {
+        this(img, root, 0, 0);
+    }
+
+    /**
+     * A splitter split an image pixel, in a given way.
+     * If you want to debug, you can pass a pane
+     * in which all Images generated in debugs will be add.
+     * Initialize function will be call only if the matrice is
+     * a valid image.
+     * Debug function is called only if the Pane is not null.
+     * @param img the image to process
+     * @param root expected not null for debug process.
+     */
+    public Splitter(@NotNull Mat img, @Nullable Pane root, int colLimit, int rowLimit)
+    {
         this.setImg(img);
         this.setRoot(root);
+        this.colLimit = colLimit;
+        this.rowLimit = rowLimit;
         if (this.isValidImage(img))
         {
             this.initialize();
@@ -186,22 +206,23 @@ public abstract class Splitter
      * It look for a non black pixel (non 0 value) as start index
      * and to a black pixel (0 value) as stop index.
      * @param anHistogram an int array
+     * @param value limit bound
      * @return a List containing the Pair of start and end index found,
      *          or an empty list if none was found.
      */
-    protected @NotNull List<Pair<Integer, Integer>> findBoundaries(@NotNull int[] anHistogram)
+    protected @NotNull List<Pair<Integer, Integer>> findBoundaries(@NotNull int[] anHistogram, int value)
     {
         List<Pair<Integer, Integer>> boundaries = new LinkedList<>();
         int start = -1, end = -1;
         for (int i = 0; i < anHistogram.length; i++)
         {
-            if (anHistogram[i] != 0 && start == -1)
+            if (anHistogram[i] > value && start == -1)
             {
-                start = i;
+                start = i - 1;
             }
-            else if (start != -1 && anHistogram[i] == 0)
+            else if (start != -1 && anHistogram[i] <= value)
             {
-                end = i;
+                end = i + 1;
             }
             if (start != -1 && end != -1)
             {
@@ -209,6 +230,10 @@ public abstract class Splitter
                 start = -1;
                 end = -1;
             }
+        }
+        if (start != -1) // reach the end but no blank after
+        {
+            boundaries.add(new Pair<>(start, anHistogram.length));
         }
         return boundaries;
     }
@@ -228,16 +253,16 @@ public abstract class Splitter
         int rowEnd = -1;
 
         int j = 0;
-        while (j < rowsHistogram.length && rowStart == -1)
+        while (j < anHistogram.length && rowStart == -1)
         {
-            if (rowsHistogram[j] != 0) rowStart = j;
+            if (anHistogram[j] != 0) rowStart = j - 1;
             j++;
         }
 
-        j = rowsHistogram.length - 1;
+        j = anHistogram.length - 1;
         while (j > -1 && rowEnd == -1)
         {
-            if (rowsHistogram[j] != 0) rowEnd = j;
+            if (anHistogram[j] != 0) rowEnd = j + 1;
             j--;
         }
 
