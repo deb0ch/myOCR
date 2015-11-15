@@ -3,6 +3,7 @@ package processing.classify;
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
@@ -169,7 +170,7 @@ public class Classifier
      */
     private void buildDataset()
     {
-        String datasetPath = Classifier.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "resources/datasets/Hnd/";
+        String datasetPath = Classifier.class.getResource("./../../../resources/datasets/Hnd/").getPath();
 
         for (char c : _charClasses)
         {
