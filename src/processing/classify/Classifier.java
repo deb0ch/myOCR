@@ -5,6 +5,7 @@ import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.ml.KNearest;
+import org.opencv.ml.Ml;
 import processing.pre.ImageManipulator;
 import utils.ErrorHandling;
 
@@ -25,9 +26,30 @@ public class Classifier
 
     public void train()
     {
-        _knn = KNearest.create();
+        Mat trainingSamples = new Mat();
+        Mat trainingResponses = new Mat(1, 0, CvType.CV_8U);
+
         this.buildDataset();
-        this.splitDatasets(0.7f);
+        this.splitDataset(0.7f);
+
+        _knn = KNearest.create();
+
+        for (Map.Entry<String, List<Mat>> entry : _trainingSet.entrySet())
+        {
+            for (Mat img : entry.getValue())
+            {
+                Mat tmp = new Mat(1, 1, CvType.CV_8U);
+
+                tmp.put(0, 0, entry.getKey().charAt(0));
+                trainingSamples.push_back(img.reshape(1, 1));
+                trainingResponses.push_back(tmp);
+            }
+        }
+        trainingResponses = trainingResponses.reshape(1, 1);
+        trainingSamples.convertTo(trainingSamples, CvType.CV_32F);
+        trainingResponses.convertTo(trainingResponses, CvType.CV_32F);
+
+        _knn.train(trainingSamples, Ml.ROW_SAMPLE, trainingResponses);
     }
 
     private KNearest                _knn;
@@ -71,7 +93,7 @@ public class Classifier
 //                    '6',
 //                    '7',
 //                    '8',
-//                    '9'
+                    '9'
             };
 
     private void start(File img, Pane root)
@@ -90,9 +112,7 @@ public class Classifier
         {
             m = this.preProc(m);
             this.train();
-
             ImageManipulator.showMat(root, m);
-            System.out.println("elem = " + Arrays.toString(m.get(0, 0)));
         }
         else
             ErrorHandling.log(Level.WARNING, "Not an image");
@@ -105,6 +125,7 @@ public class Classifier
         m = m.submat(r.y, r.y + r.height, r.x, r.x + r.width);
         m = this.squareMat(m);
         Imgproc.resize(m, m, new Size(24, 24));
+        m = ImageManipulator.applyOtsuBinarysation(m); // Imgproc.resize may break binarization
         return m;
     }
 
@@ -128,7 +149,7 @@ public class Classifier
      * Splits _dataset into _trainingSet and _testSet.
      * @param ratio Size ratio of _trainingSet over _testSet.
      */
-    private void splitDatasets(float ratio)
+    private void splitDataset(float ratio)
     {
         _dataset.forEach((key, value) ->
         {
