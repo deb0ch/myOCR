@@ -2,7 +2,11 @@ package controllers;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -16,6 +20,7 @@ import processing.pre.LinesSplitter;
 import processing.pre.WordsSplitter;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by sal on 11/11/15.
@@ -34,44 +39,43 @@ public class HomeController
     private Classifier classifier;
 
     @FXML
-    private void initialize()
+    private void initialize() throws IOException
     {
-        VBox center = new VBox();
-        Label rowLimitLabel = new Label("row limit");
-        Label colLimitLabel = new Label("col limit");
-        colLimitField = new TextField("0");
-        rowLimitField = new TextField("0");
-        HBox rowLimitBox = new HBox(rowLimitLabel, rowLimitField);
-        HBox colLimitBox = new HBox(colLimitLabel, colLimitField);
-        classifyButton = addClassifyButton();
-        classifyButton.setVisible(false);
-        debugPreProcessButton = addDebugPreProcessButton();
-        debugPreProcessButton.setVisible(false);
-        center.getChildren().addAll(addSelectTrainingSetDirectory(), classifyButton, debugPreProcessButton, rowLimitBox, colLimitBox);
-        root.setCenter(center);
-    }
+//        VBox center = new VBox();
+//        Label rowLimitLabel = new Label("row limit");
+//        Label colLimitLabel = new Label("col limit");
+//        colLimitField = new TextField("0");
+//        rowLimitField = new TextField("0");
+//        HBox rowLimitBox = new HBox(rowLimitLabel, rowLimitField);
+//        HBox colLimitBox = new HBox(colLimitLabel, colLimitField);
+//        classifyButton = addClassifyButton();
+//        classifyButton.setVisible(false);
+//        debugPreProcessButton = addDebugPreProcessButton();
+//        debugPreProcessButton.setVisible(false);
+//        center.getChildren().addAll(addSelectTrainingSetDirectory(), classifyButton, debugPreProcessButton, rowLimitBox, colLimitBox);
+//        root.setCenter(center);
+        FXMLLoader chooseDatasetLoader = new FXMLLoader(getClass().getResource("./../views/chooseDataSet.fxml"));
+        BorderPane chooseDataSet = chooseDatasetLoader.load();
+        ChooseDataSetDirectoryController chooseDataSetDirectoryController = chooseDatasetLoader.getController();
 
-    private HBox addSelectTrainingSetDirectory()
-    {
-        HBox hBox = new HBox();
-        Label label = new Label("Trainning Set directory: ");
-        Label value = new Label("'none'");
-        Button button = new Button("Choose");
-        button.setOnAction(event -> {
+        FXMLLoader loadingTrainingDataSetLoader = new FXMLLoader(getClass().getResource("../views/loadingTrainingDataSet.fxml"));
+        BorderPane loadingTrainingDataSetBorderPane = loadingTrainingDataSetLoader.load();
+        LoadingTrainingDataSetController loadingTrainingDataSetController = loadingTrainingDataSetLoader.getController();
+
+        Button chooseDataSetDirectoryButton = chooseDataSetDirectoryController.getChooseDataSetDirectoryButton();
+        chooseDataSetDirectoryButton.setOnAction(event -> {
             DirectoryChooser directoryChooser = new DirectoryChooser();
             directoryChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
             File trainningSetDirectory = directoryChooser.showDialog(null);
             if (trainningSetDirectory != null)
             {
-                dataSetPath = trainningSetDirectory.getPath();
-                classifyButton.setVisible(true);
-                debugPreProcessButton.setVisible(true);
-                value.setText(dataSetPath);
+                root.setCenter(loadingTrainingDataSetBorderPane);
             }
         });
-        hBox.getChildren().addAll(label, value, button);
-        return hBox;
+        root.setCenter(chooseDataSet);
     }
+
+
 
     private Button addDebugPreProcessButton()
     {
@@ -137,9 +141,9 @@ public class HomeController
                     HBox box = new HBox();
                     box.getChildren().addAll(addReturnButton(), new Label("Loading and training, please wait"));
                     root.setCenter(box);
-                    if (classifier == null)
-                        classifier = new Classifier(ImageManipulator.loadGreyImage(selectedFile), dataSetPath, box);
-                    classifier.classify();
+//                    if (classifier == null)
+//                        classifier = new Classifier(ImageManipulator.loadGreyImage(selectedFile), dataSetPath, box);
+//                    classifier.classify();
                 });
             }
         });
@@ -153,7 +157,7 @@ public class HomeController
         {
             event.consume();
             root.getChildren().clear();
-            this.initialize();
+//            this.initialize();
         });
         return button;
     }

@@ -26,20 +26,17 @@ import java.util.stream.Collectors;
  */
 public class Classifier
 {
-    private @NotNull String datasetPath;
-
-    public Classifier(@NotNull Mat img, @NotNull String datasetPath, @NotNull Pane root)
+    public Classifier(@NotNull Mat img, @NotNull File dataSetDirectory, @NotNull Pane root)
     {
-        this.datasetPath = datasetPath;
-        this.start(img, root);
+//        this.start(img, root);
     }
 
-    public void train()
+    public void train(File dataSetDirectory)
     {
         Mat trainingSamples = new Mat();
         Mat trainingResponses = new Mat(1, 0, CvType.CV_8U);
 
-        this.buildDataset();
+        this.buildDataset(dataSetDirectory);
         this.splitDataset(0.7f);
 
         _knn = KNearest.create();
@@ -111,7 +108,7 @@ public class Classifier
         if (!img.empty() && img.size().area() > 0)
         {
             img = this.preProc(img);
-            this.train();
+//            this.train();
             ImageManipulator.showMat(root, img);
         }
         else
@@ -169,12 +166,13 @@ public class Classifier
      * Iterate through dataset directories, each directory being named according to the character
      * it refers to. Opens every image in these directories and stores them in the _dataset class attribute.
      * Each matrix generated is stored in that map with its label as a key.
+     * @param dataSetDirectory
      */
-    private void buildDataset()
+    private void buildDataset(File dataSetDirectory)
     {
         for (char c : _charClasses)
         {
-            List<File> samples = this.getDirContents(String.format("%s/%s", datasetPath, c));
+            List<File> samples = this.getDirContents(String.format("%s/%s", dataSetDirectory.getPath(), c));
             if (!samples.isEmpty())
             {
                 _dataset.put(String.valueOf(c), new LinkedList<>());

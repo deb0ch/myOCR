@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Label?>
+<BorderPane fx:id="root" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.LoadingTrainingDataSetController">
+    <center>
+        <HBox  maxHeight="Infinity" maxWidth="Infinity" alignment="CENTER">
+            <Label maxWidth="Infinity" maxHeight="Infinity" text="Loading Files" textAlignment="CENTER"/>
+        </HBox>
+    </center>
+    <bottom>
+        <HBox maxWidth="Infinity">
+            <ProgressBar fx:id="loadingTrainingSetProgressBar" maxHeight="Infinity" maxWidth="Infinity" progress="0"/>
+        </HBox>
+    </bottom>
+</BorderPane>
