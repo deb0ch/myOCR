@@ -28,7 +28,6 @@ public class Classifier
 {
     public Classifier(@NotNull Mat img, @NotNull File dataSetDirectory, @NotNull Pane root)
     {
-//        this.start(img, root);
     }
 
     public void train(File dataSetDirectory)
@@ -38,9 +37,7 @@ public class Classifier
 
         this.buildDataset(dataSetDirectory);
         this.splitDataset(0.7f);
-
         _knn = KNearest.create();
-
         for (Map.Entry<String, List<Mat>> entry : _trainingSet.entrySet())
         {
             for (Mat img : entry.getValue())
@@ -55,8 +52,20 @@ public class Classifier
         trainingResponses = trainingResponses.reshape(1, 1);
         trainingSamples.convertTo(trainingSamples, CvType.CV_32F);
         trainingResponses.convertTo(trainingResponses, CvType.CV_32F);
-
         _knn.train(trainingSamples, Ml.ROW_SAMPLE, trainingResponses);
+    }
+
+    public Character classify(Mat m)
+    {
+        Mat results = new Mat();
+        Mat responses = new Mat();
+        Mat distances = new Mat();
+
+        m = this.preProc(m);
+        m = m.reshape(1, 1);
+        m.convertTo(m, CvType.CV_32F);
+        _knn.findNearest(m, 3, results, responses, distances);
+        return (char)results.get(0, 0)[0];
     }
 
     private KNearest                _knn;
@@ -67,53 +76,41 @@ public class Classifier
     private char[]                  _charClasses =
             {
                     'A', 'a',
-//                    'B', 'b',
-//                    'C', 'c',
-//                    'D', 'd',
-//                    'E', 'e',
-//                    'F', 'f',
-//                    'G', 'g',
-//                    'H', 'h',
-//                    'I', 'i',
-//                    'J', 'j',
-//                    'K', 'k',
-//                    'L', 'l',
-//                    'M', 'm',
-//                    'N', 'n',
-//                    'O', 'o',
-//                    'P', 'p',
-//                    'Q', 'q',
-//                    'R', 'r',
-//                    'S', 's',
-//                    'T', 't',
-//                    'U', 'u',
-//                    'V', 'v',
-//                    'X', 'x',
-//                    'Y', 'y',
-//                    'Z', 'z',
-//                    '0',
-//                    '1',
-//                    '2',
-//                    '3',
-//                    '4',
-//                    '5',
-//                    '6',
-//                    '7',
-//                    '8',
+                    'B', 'b',
+                    'C', 'c',
+                    'D', 'd',
+                    'E', 'e',
+                    'F', 'f',
+                    'G', 'g',
+                    'H', 'h',
+                    'I', 'i',
+                    'J', 'j',
+                    'K', 'k',
+                    'L', 'l',
+                    'M', 'm',
+                    'N', 'n',
+                    'O', 'o',
+                    'P', 'p',
+                    'Q', 'q',
+                    'R', 'r',
+                    'S', 's',
+                    'T', 't',
+                    'U', 'u',
+                    'V', 'v',
+                    'X', 'x',
+                    'Y', 'y',
+                    'Z', 'z',
+                    '0',
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5',
+                    '6',
+                    '7',
+                    '8',
                     '9'
             };
-
-    private void start(@NotNull Mat img, @NotNull Pane root)
-    {
-        if (!img.empty() && img.size().area() > 0)
-        {
-            img = this.preProc(img);
-//            this.train();
-            ImageManipulator.showMat(root, img);
-        }
-        else
-            ErrorHandling.log(Level.WARNING, "Not an image");
-    }
 
     private Mat preProc(@NotNull Mat m)
     {
