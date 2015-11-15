@@ -1,5 +1,6 @@
 package processing.pre;
 
+import com.sun.istack.internal.NotNull;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -44,9 +45,9 @@ public class ImageManipulator
      * @param src
      * @return
      */
-    public static Mat applyOtsuBinarysation(Mat src)
+    public static Mat applyOtsuBinarysation(@NotNull Mat src)
     {
-        assert src != null : "Invalid matrix: null value";
+        assert !src.empty() : "Invalid img passed: empty matrices";
 
         Mat dest = new Mat();
         int thresh = 0;
