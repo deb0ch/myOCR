@@ -27,7 +27,6 @@ public class OCRApplication extends Application
         launch(args);
     }
 
-
     private void addExitListener(Scene scene)
     {
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) ->

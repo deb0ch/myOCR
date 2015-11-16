@@ -26,14 +26,17 @@ import java.util.stream.Collectors;
  */
 public class Classifier
 {
+    /*
+     * Public
+     */
+
     public Classifier(@NotNull Mat img, @NotNull File dataSetDirectory, @NotNull Pane root)
-    {
-    }
+    {}
 
     public void train(File dataSetDirectory)
     {
-        Mat trainingSamples = new Mat();
-        Mat trainingResponses = new Mat(1, 0, CvType.CV_8U);
+        _trainingSamples = new Mat();
+        _trainingResponses = new Mat(1, 0, CvType.CV_8U);
 
         this.buildDataset(dataSetDirectory);
         this.splitDataset(0.7f);
@@ -45,14 +48,14 @@ public class Classifier
                 Mat tmp = new Mat(1, 1, CvType.CV_8U);
 
                 tmp.put(0, 0, entry.getKey().charAt(0));
-                trainingSamples.push_back(img.reshape(1, 1));
-                trainingResponses.push_back(tmp);
+                _trainingSamples.push_back(img.reshape(1, 1));
+                _trainingResponses.push_back(tmp);
             }
         }
-        trainingResponses = trainingResponses.reshape(1, 1);
-        trainingSamples.convertTo(trainingSamples, CvType.CV_32F);
-        trainingResponses.convertTo(trainingResponses, CvType.CV_32F);
-        _knn.train(trainingSamples, Ml.ROW_SAMPLE, trainingResponses);
+        _trainingResponses = _trainingResponses.reshape(1, 1);
+        _trainingSamples.convertTo(_trainingSamples, CvType.CV_32F);
+        _trainingResponses.convertTo(_trainingResponses, CvType.CV_32F);
+        _knn.train(_trainingSamples, Ml.ROW_SAMPLE, _trainingResponses);
     }
 
     public Character classify(Mat m)
@@ -68,10 +71,32 @@ public class Classifier
         return (char)results.get(0, 0)[0];
     }
 
+    public void save(String pathName)
+    {
+        Imgcodecs.imwrite(pathName + "_samp", _trainingSamples);
+        Imgcodecs.imwrite(pathName + "_resp", _trainingResponses);
+    }
+
+    public void loadAndTrain(String pathName)
+    {
+        _trainingSamples = Imgcodecs.imread(pathName + "_samp");
+        _trainingResponses = Imgcodecs.imread(pathName + "_resp");
+        _trainingSamples.convertTo(_trainingSamples, CvType.CV_32F);
+        _trainingResponses.convertTo(_trainingResponses, CvType.CV_32F);
+        _knn.train(_trainingSamples, Ml.ROW_SAMPLE, _trainingResponses);
+    }
+
+    /*
+     * Private
+     */
+
     private KNearest                _knn;
     private Map<String, List<Mat>>  _dataset = new HashMap<>();
     private Map<String, List<Mat>>  _trainingSet = new HashMap<>();
     private Map<String, List<Mat>>  _testSet = new HashMap<>();
+
+    private Mat                     _trainingSamples = new Mat();
+    private Mat                     _trainingResponses = new Mat(1, 0, CvType.CV_8U);
 
     private char[]                  _charClasses =
             {
@@ -144,9 +169,10 @@ public class Classifier
     {
         _dataset.forEach((key, value) ->
         {
+            int i;
+
             _trainingSet.put(key, new LinkedList<>());
             _testSet.put(key, new LinkedList<>());
-            int i;
             for (i = 0; i < value.size() * ratio; i++)
             {
                 _trainingSet.get(key).add(value.get(i));
@@ -182,10 +208,5 @@ public class Classifier
                 });
             }
         }
-    }
-
-    public void classify()
-    {
-
     }
 }
