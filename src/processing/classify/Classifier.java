@@ -37,8 +37,8 @@ public class Classifier
     private Label generalStatus = new Label();
     private Label detailsStatus = new Label();
     private final float NB_BUILD_DATA_SET = 1f;
-    private final float NB_SPLIT_DATA_SET = 2f;
-    private final float NB_KNN = 3f;
+    private final float NB_SPLIT_DATA_SET = NB_BUILD_DATA_SET + 1f;
+    private final float NB_KNN = NB_SPLIT_DATA_SET + 1f;
     private final float NB_GENERAL_STEPS = NB_KNN; // last values of steps
 
     public ProgressBar getGeneralProgressBar()
