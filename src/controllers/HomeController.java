@@ -58,9 +58,9 @@ public class HomeController
         BorderPane chooseDataSet = chooseDatasetLoader.load();
         ChooseDataSetDirectoryController chooseDataSetDirectoryController = chooseDatasetLoader.getController();
 
-        FXMLLoader loadingTrainingDataSetLoader = new FXMLLoader(getClass().getResource("../views/loadingTrainingDataSet.fxml"));
+        FXMLLoader loadingTrainingDataSetLoader = new FXMLLoader(getClass().getResource("../views/loadingView.fxml"));
         BorderPane loadingTrainingDataSetBorderPane = loadingTrainingDataSetLoader.load();
-        LoadingTrainingDataSetController loadingTrainingDataSetController = loadingTrainingDataSetLoader.getController();
+        LoadingController loadingTrainingDataSetController = loadingTrainingDataSetLoader.getController();
 
         Button chooseDataSetDirectoryButton = chooseDataSetDirectoryController.getChooseDataSetDirectoryButton();
         chooseDataSetDirectoryButton.setOnAction(event -> {
@@ -70,15 +70,14 @@ public class HomeController
             if (trainningSetDirectory != null)
             {
                 root.setCenter(loadingTrainingDataSetBorderPane);
-                classifier =
-                        new Classifier(
-                                loadingTrainingDataSetController.getLoadingTrainingSetProgressBar(),
-                                trainningSetDirectory
-                        );
-//                Platform.runLater(() -> classifier.train());
-                new Thread(() -> {
-                    classifier.train();
-                }).start();
+                classifier = new Classifier(trainningSetDirectory);
+
+//                classifier.getGeneralProgressBar().progressProperty().addListener((observable, oldValue, newValue) -> {
+//                    if (newValue.equals(1f)) root.setCenter(addReturnButton());
+//                });
+                loadingTrainingDataSetBorderPane.setCenter(new VBox(classifier.generalStatus(), classifier.getGeneralProgressBar()));
+                loadingTrainingDataSetBorderPane.setBottom(new VBox(classifier.detailsStatus(), classifier.getDetailsProgressBar()));
+                new Thread(classifier::train).start();
             }
         });
         root.setCenter(chooseDataSet);
