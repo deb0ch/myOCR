@@ -1,10 +1,13 @@
+/**
+ * Created by sal on 11/11/15.
+ */
+
 package processing.classify;
 
 import com.sun.istack.internal.NotNull;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.Pane;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
@@ -15,49 +18,74 @@ import org.opencv.ml.KNearest;
 import org.opencv.ml.Ml;
 import processing.pre.ImageManipulator;
 import processing.pre.MatManipulator;
-import utils.ErrorHandling;
 
 import java.io.File;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-/**
- * Created by sal on 11/11/15.
- */
 public class Classifier
 {
     private KNearest                _knn;
     private Map<String, List<Mat>>  _dataset = new HashMap<>();
     private Map<String, List<Mat>>  _trainingSet = new HashMap<>();
     private Map<String, List<Mat>>  _testSet = new HashMap<>();
-    private String dataSetDirectoryPath;
-    private ProgressBar generalProgressBar = new ProgressBar();
-    private ProgressBar detailsProgressBar = new ProgressBar();
-    private Label generalStatus = new Label();
-    private Label detailsStatus = new Label();
+
+    private Mat                     _trainingSamples = new Mat();
+    private Mat                     _trainingResponses = new Mat(1, 0, CvType.CV_8U);
+
+    public static final int         KNN_K_VALUE = 3;
+
+    private char[]                  _charClasses =
+            {
+                    'A', 'a',
+//                    'B', 'b',
+//                    'C', 'c',
+//                    'D', 'd',
+//                    'E', 'e',
+//                    'F', 'f',
+//                    'G', 'g',
+//                    'H', 'h',
+//                    'I', 'i',
+//                    'J', 'j',
+//                    'K', 'k',
+//                    'L', 'l',
+//                    'M', 'm',
+//                    'N', 'n',
+//                    'O', 'o',
+//                    'P', 'p',
+//                    'Q', 'q',
+//                    'R', 'r',
+//                    'S', 's',
+//                    'T', 't',
+//                    'U', 'u',
+//                    'V', 'v',
+//                    'X', 'x',
+//                    'Y', 'y',
+//                    'Z', 'z',
+//                    '0',
+//                    '1',
+//                    '2',
+//                    '3',
+//                    '4',
+//                    '5',
+//                    '6',
+//                    '7',
+//                    '8',
+                    '9'
+            };
+
+    /*
+    ** Graphical needs
+     */
+
+    private ProgressBar generalProgressBar;
+    private ProgressBar detailsProgressBar;
+    private Label generalStatus;
+    private Label detailsStatus;
     private final float NB_BUILD_DATA_SET = 1f;
     private final float NB_SPLIT_DATA_SET = NB_BUILD_DATA_SET + 1f;
     private final float NB_KNN = NB_SPLIT_DATA_SET + 1f;
     private final float NB_GENERAL_STEPS = NB_KNN; // last values of steps
-
-    public ProgressBar getGeneralProgressBar()
-    {
-        return generalProgressBar;
-    }
-
-    public ProgressBar getDetailsProgressBar()
-    {
-        return detailsProgressBar;
-    }
-
-    public Classifier(@NotNull File dataSetDirectory)
-    {
-        this.dataSetDirectoryPath = dataSetDirectory.getPath();
-        generalProgressBar.setProgress(0f);
-        generalProgressBar.setPrefSize(Double.MAX_VALUE, Double.MIN_NORMAL);
-        detailsProgressBar.setPrefSize(Double.MAX_VALUE, Double.MIN_NORMAL);
-    }
 
     private void setProgress(float value, @NotNull ProgressBar p)
     {
@@ -69,14 +97,27 @@ public class Classifier
         Platform.runLater(() -> sp.setText(msg));
     }
 
-    public void train()
+    public Classifier(@NotNull ProgressBar generalProgressBar, @NotNull ProgressBar detailsProgressBar,
+                      @NotNull Label generalStatus, @NotNull Label detailsStatus)
     {
-        Mat trainingSamples = new Mat();
-        Mat trainingResponses = new Mat(1, 0, CvType.CV_8U);
+        this.generalStatus = generalStatus;
+        this.detailsStatus = detailsStatus;
+        this.generalProgressBar = generalProgressBar;
+        this.detailsProgressBar = detailsProgressBar;
+    }
 
-        this.buildDataset();
+    public Map<String, List<Mat>> get_dataset()  { return _dataset; }
+
+    public Map<String, List<Mat>> get_trainingSet()  { return _trainingSet; }
+
+    public Map<String, List<Mat>> get_testSet()  { return _testSet; }
+
+    public void buildDatasetAndTrain(File dataSetDirectory)
+    {
+        _trainingSamples = new Mat();
+        _trainingResponses = new Mat(1, 0, CvType.CV_8U);
+        this.buildDataset(dataSetDirectory);
         this.splitDataset(0.7f);
-
         setText("Creating KNN", generalStatus);
         _knn = KNearest.create();
 
@@ -84,6 +125,7 @@ public class Classifier
         float indexTraining = 1f;
         setText("...", detailsStatus);
         setProgress(0f, detailsProgressBar);
+
         for (Map.Entry<String, List<Mat>> entry : _trainingSet.entrySet())
         {
             setText("Prepare training sets: " + entry.getKey(), detailsStatus);
@@ -92,70 +134,44 @@ public class Classifier
                 Mat tmp = new Mat(1, 1, CvType.CV_8U);
 
                 tmp.put(0, 0, entry.getKey().charAt(0));
-                trainingSamples.push_back(img.reshape(1, 1));
-                trainingResponses.push_back(tmp);
+                _trainingSamples.push_back(img.reshape(1, 1));
+                _trainingResponses.push_back(tmp);
             }
             setProgress(indexTraining++/totalTraining, detailsProgressBar);
         }
-
-        setText("...", detailsStatus);
-        trainingResponses = trainingResponses.reshape(1, 1);
-        trainingSamples.convertTo(trainingSamples, CvType.CV_32F);
-        trainingResponses.convertTo(trainingResponses, CvType.CV_32F);
-        setText("Training KNN", generalStatus);
-        _knn.train(trainingSamples, Ml.ROW_SAMPLE, trainingResponses);
+        _trainingResponses = _trainingResponses.reshape(1, 1);
+        this.doTrain();
         setProgress(NB_KNN/NB_GENERAL_STEPS, generalProgressBar);
     }
 
-    private char[]                  _charClasses =
-            {
-                    'A', 'a',
-                    'B', 'b',
-                    'C', 'c',
-                    'D', 'd',
-                    'E', 'e',
-                    'F', 'f',
-                    'G', 'g',
-                    'H', 'h',
-                    'I', 'i',
-                    'J', 'j',
-                    'K', 'k',
-                    'L', 'l',
-                    'M', 'm',
-                    'N', 'n',
-                    'O', 'o',
-                    'P', 'p',
-                    'Q', 'q',
-                    'R', 'r',
-                    'S', 's',
-                    'T', 't',
-                    'U', 'u',
-                    'V', 'v',
-                    'X', 'x',
-                    'Y', 'y',
-                    'Z', 'z',
-                    '0',
-                    '1',
-                    '2',
-                    '3',
-                    '4',
-                    '5',
-                    '6',
-                    '7',
-                    '8',
-                    '9'
-            };
-
-    public void start(@NotNull Mat img, @NotNull Pane root)
+    public Character classify(Mat m)
     {
-        if (!img.empty() && img.size().area() > 0)
-        {
-            img = this.preProc(img);
-//            this.train();
-            ImageManipulator.showMat(root, img);
-        }
-        else
-            ErrorHandling.log(Level.WARNING, "Not an image");
+        Mat results = new Mat();
+        Mat responses = new Mat();
+        Mat distances = new Mat();
+
+        m = this.preProc(m);
+        m = m.reshape(1, 1);
+        m.convertTo(m, CvType.CV_32F);
+        _knn.findNearest(m, KNN_K_VALUE, results, responses, distances);
+        return (char)results.get(0, 0)[0];
+    }
+
+    public void save(String pathName)
+    {
+        Imgcodecs.imwrite(pathName + "_samp", _trainingSamples);
+        Imgcodecs.imwrite(pathName + "_resp", _trainingResponses);
+    }
+
+    /**
+     * Load previously saved dataset and trains knn
+     * @param pathName
+     */
+    public void loadAndTrain(String pathName)
+    {
+        _trainingSamples = Imgcodecs.imread(pathName + "_samp");
+        _trainingResponses = Imgcodecs.imread(pathName + "_resp");
+        this.doTrain();
     }
 
     private Mat preProc(@NotNull Mat m)
@@ -204,7 +220,7 @@ public class Classifier
      * it refers to. Opens every image in these directories and stores them in the _dataset class attribute.
      * Each matrix generated is stored in that map with its label as a key.
      */
-    private void buildDataset()
+    private void buildDataset(File dataSetDirectoryPath)
     {
         setText("Building Data Set", generalStatus);
         for (char c : _charClasses)
@@ -238,18 +254,11 @@ public class Classifier
         return Arrays.stream(tmp).filter(File::isFile).collect(Collectors.toList());
     }
 
-    public void classify()
+    private void doTrain()
     {
-
-    }
-
-    public Label generalStatus()
-    {
-        return generalStatus;
-    }
-
-    public Label detailsStatus()
-    {
-        return detailsStatus;
+        setText("Start training", detailsStatus);
+        _trainingSamples.convertTo(_trainingSamples, CvType.CV_32F);
+        _trainingResponses.convertTo(_trainingResponses, CvType.CV_32F);
+        _knn.train(_trainingSamples, Ml.ROW_SAMPLE, _trainingResponses);
     }
 }

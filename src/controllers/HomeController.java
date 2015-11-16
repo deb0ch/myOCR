@@ -1,23 +1,12 @@
 package controllers;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import org.opencv.core.Mat;
 import processing.classify.Classifier;
-import processing.pre.ImageManipulator;
-import processing.pre.LettersSplitter;
-import processing.pre.LinesSplitter;
-import processing.pre.WordsSplitter;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,12 +19,6 @@ public class HomeController
     @FXML
     private BorderPane root;
 
-    private File selectedFile;
-    private String dataSetPath;
-    private TextField colLimitField;
-    private TextField rowLimitField;
-    private Button classifyButton;
-    private Button debugPreProcessButton;
     private Classifier classifier;
 
     @FXML
@@ -58,9 +41,9 @@ public class HomeController
         BorderPane chooseDataSet = chooseDatasetLoader.load();
         ChooseDataSetDirectoryController chooseDataSetDirectoryController = chooseDatasetLoader.getController();
 
-        FXMLLoader loadingTrainingDataSetLoader = new FXMLLoader(getClass().getResource("../views/loadingView.fxml"));
-        BorderPane loadingTrainingDataSetBorderPane = loadingTrainingDataSetLoader.load();
-        LoadingController loadingTrainingDataSetController = loadingTrainingDataSetLoader.getController();
+        FXMLLoader tDSLoader = new FXMLLoader(getClass().getResource("../views/loadingView.fxml"));
+        BorderPane tDSBorderPane = tDSLoader.load();
+        LoadingController tDSController = tDSLoader.getController();
 
         Button chooseDataSetDirectoryButton = chooseDataSetDirectoryController.getChooseDataSetDirectoryButton();
         chooseDataSetDirectoryButton.setOnAction(event -> {
@@ -69,18 +52,26 @@ public class HomeController
             File trainningSetDirectory = directoryChooser.showDialog(null);
             if (trainningSetDirectory != null)
             {
-                root.setCenter(loadingTrainingDataSetBorderPane);
-                classifier = new Classifier(trainningSetDirectory);
+                root.setCenter(tDSBorderPane);
+                classifier =
+                        new Classifier(tDSController.generalProgressBar,
+                                tDSController.detailsProgressBar,
+                                tDSController.generalLabel,
+                                tDSController.detailsLabel);
 
-                classifier.getGeneralProgressBar().progressProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue.floatValue() >= 1f)
-                    {
-                        root.setCenter(addReturnButton());
-                    }
-                });
-                loadingTrainingDataSetBorderPane.setCenter(new VBox(classifier.generalStatus(), classifier.getGeneralProgressBar()));
-                loadingTrainingDataSetBorderPane.setBottom(new VBox(classifier.detailsStatus(), classifier.getDetailsProgressBar()));
-                new Thread(classifier::train).start();
+                tDSController
+                        .generalProgressBar
+                        .progressProperty()
+                        .addListener((observable, oldValue, newValue) ->
+                        {
+                            if (newValue.floatValue() >= 1f)
+                            {
+                                root.setCenter(addReturnButton());
+                            }
+                        });
+                new Thread(() -> {
+                    classifier.buildDatasetAndTrain(trainningSetDirectory);
+                }).start();
             }
         });
         root.setCenter(chooseDataSet);
@@ -88,43 +79,43 @@ public class HomeController
 
 
 
-    private Button addDebugPreProcessButton()
-    {
-        FileChooser fileChooser = addFileChooser();
-        Button button = new Button("Debug Preprocess");
-        button.setOnAction(event ->
-        {
-            selectedFile = fileChooser.showOpenDialog(null);
-            event.consume();
-            if (selectedFile != null)
-            {
-                root.getChildren().clear();
-                VBox center = new VBox();
-                HBox imgsBox = new HBox();
-                center.getChildren().addAll(addReturnButton(), imgsBox);
-                ScrollPane scrollPane = new ScrollPane(center);
-                root.setCenter(scrollPane);
-                Mat m = ImageManipulator.loadGreyImage(selectedFile);
-                //detach lines
-                int colLimit = Integer.valueOf(colLimitField.getText());
-                int rowLimit = Integer.valueOf(rowLimitField.getText());
-                LinesSplitter linesSplitter = new LinesSplitter(m, imgsBox, colLimit, rowLimit);
-                VBox tmpBox = new VBox();
-                for (Mat line: linesSplitter.split())
-                {
-                    WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox, colLimit, rowLimit);
-                    VBox tmpBox2 = new VBox();
-                    for (Mat word: wordsSplitter.split())
-                    {
-                        LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
-                    }
-                    tmpBox.getChildren().add(tmpBox2);
-                }
-                imgsBox.getChildren().add(tmpBox);
-            }
-        });
-        return button;
-    }
+//    private Button addDebugPreProcessButton()
+//    {
+//        FileChooser fileChooser = addFileChooser();
+//        Button button = new Button("Debug Preprocess");
+//        button.setOnAction(event ->
+//        {
+//            selectedFile = fileChooser.showOpenDialog(null);
+//            event.consume();
+//            if (selectedFile != null)
+//            {
+//                root.getChildren().clear();
+//                VBox center = new VBox();
+//                HBox imgsBox = new HBox();
+//                center.getChildren().addAll(addReturnButton(), imgsBox);
+//                ScrollPane scrollPane = new ScrollPane(center);
+//                root.setCenter(scrollPane);
+//                Mat m = ImageManipulator.loadGreyImage(selectedFile);
+//                //detach lines
+//                int colLimit = Integer.valueOf(colLimitField.getText());
+//                int rowLimit = Integer.valueOf(rowLimitField.getText());
+//                LinesSplitter linesSplitter = new LinesSplitter(m, imgsBox, colLimit, rowLimit);
+//                VBox tmpBox = new VBox();
+//                for (Mat line: linesSplitter.split())
+//                {
+//                    WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox, colLimit, rowLimit);
+//                    VBox tmpBox2 = new VBox();
+//                    for (Mat word: wordsSplitter.split())
+//                    {
+//                        LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
+//                    }
+//                    tmpBox.getChildren().add(tmpBox2);
+//                }
+//                imgsBox.getChildren().add(tmpBox);
+//            }
+//        });
+//        return button;
+//    }
 
     private FileChooser addFileChooser()
     {
@@ -137,26 +128,26 @@ public class HomeController
         return fileChooser;
     }
 
-    private Button addClassifyButton()
-    {
-        FileChooser fileChooser = addFileChooser();
-        Button button = new Button("Classify");
-        button.setOnAction(event ->
-        {
-            selectedFile = fileChooser.showOpenDialog(null);
-            event.consume();
-            if (selectedFile != null && dataSetPath != null && !dataSetPath.isEmpty())
-            {
-                Platform.runLater(() -> {
-                    root.getChildren().clear();
-                    HBox box = new HBox();
-                    box.getChildren().addAll(addReturnButton(), new Label("Loading and training, please wait"));
-                    root.setCenter(box);
-                });
-            }
-        });
-        return button;
-    }
+//    private Button addClassifyButton()
+//    {
+//        FileChooser fileChooser = addFileChooser();
+//        Button button = new Button("Classify");
+//        button.setOnAction(event ->
+//        {
+//            selectedFile = fileChooser.showOpenDialog(null);
+//            event.consume();
+//            if (selectedFile != null && dataSetPath != null && !dataSetPath.isEmpty())
+//            {
+//                Platform.runLater(() -> {
+//                    root.getChildren().clear();
+//                    HBox box = new HBox();
+//                    box.getChildren().addAll(addReturnButton(), new Label("Loading and training, please wait"));
+//                    root.setCenter(box);
+//                });
+//            }
+//        });
+//        return button;
+//    }
 
     private Button addReturnButton()
     {
