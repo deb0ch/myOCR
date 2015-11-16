@@ -4,7 +4,12 @@
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
 <BorderPane fx:id="root" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.LoadingController">
+    <top>
+
+    </top>
     <center>
         <VBox>
             <VBox>
@@ -17,4 +22,10 @@
             </VBox>
         </VBox>
     </center>
+    <bottom>
+        <HBox>
+            <Button fx:id="saveButton"/>
+            <Button fx:id="nextButton"/>
+        </HBox>
+    </bottom>
 </BorderPane>
