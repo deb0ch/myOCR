@@ -1,6 +1,7 @@
 package controllers;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.BorderPane;
@@ -20,6 +21,10 @@ public class LoadingController
     public ProgressBar generalProgressBar;
     @FXML
     public ProgressBar detailsProgressBar;
+    @FXML
+    public Button saveButton;
+    @FXML
+    public Button nextButton;
 
     @FXML
     private void initialize()
@@ -30,5 +35,6 @@ public class LoadingController
         generalProgressBar.setPrefSize(Double.MAX_VALUE, Double.MIN_NORMAL);
         detailsProgressBar.setPrefSize(Double.MAX_VALUE, Double.MIN_NORMAL);
         // configure Labels
+        // configure Buttons
     }
 }

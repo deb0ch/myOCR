@@ -37,7 +37,7 @@ public class Classifier
 
     private char[]                  _charClasses =
             {
-                    'A', 'a',
+//                    'A', 'a',
 //                    'B', 'b',
 //                    'C', 'c',
 //                    'D', 'd',
@@ -112,15 +112,18 @@ public class Classifier
 
     public Map<String, List<Mat>> get_testSet()  { return _testSet; }
 
-    public void buildDatasetAndTrain(File dataSetDirectory)
+    public void buildDatasetAndTrain(File dataSetDirectory, double ratio)
     {
         _trainingSamples = new Mat();
         _trainingResponses = new Mat(1, 0, CvType.CV_8U);
-        this.buildDataset(dataSetDirectory);
-        this.splitDataset(0.7f);
-        setText("Creating KNN", generalStatus);
-        _knn = KNearest.create();
+        buildDataset(dataSetDirectory);
+        splitDataset(ratio);
+        createKNN();
+    }
 
+    private void createKNN()
+    {
+        setText("Creating Training set", generalStatus);
         float totalTraining = _trainingSet.size();
         float indexTraining = 1f;
         setText("...", detailsStatus);
@@ -128,7 +131,7 @@ public class Classifier
 
         for (Map.Entry<String, List<Mat>> entry : _trainingSet.entrySet())
         {
-            setText("Prepare training sets: " + entry.getKey(), detailsStatus);
+            setText(String.format("Prepare training sets: %s", entry.getKey()), detailsStatus);
             for (Mat img : entry.getValue())
             {
                 Mat tmp = new Mat(1, 1, CvType.CV_8U);
@@ -140,7 +143,6 @@ public class Classifier
             setProgress(indexTraining++/totalTraining, detailsProgressBar);
         }
         _trainingResponses = _trainingResponses.reshape(1, 1);
-        this.doTrain();
         setProgress(NB_KNN/NB_GENERAL_STEPS, generalProgressBar);
     }
 
@@ -153,25 +155,28 @@ public class Classifier
         m = this.preProc(m);
         m = m.reshape(1, 1);
         m.convertTo(m, CvType.CV_32F);
+        assert _knn != null;
         _knn.findNearest(m, KNN_K_VALUE, results, responses, distances);
         return (char)results.get(0, 0)[0];
     }
 
+    public static final String sampleFileName = "_samp.bmp";
+    public static final String reponseFileName = "_resp.bmp";
     public void save(String pathName)
     {
-        Imgcodecs.imwrite(pathName + "_samp", _trainingSamples);
-        Imgcodecs.imwrite(pathName + "_resp", _trainingResponses);
+        Imgcodecs.imwrite(String.format("%s%s%s", pathName, System.getProperty("file.separator"), sampleFileName), _trainingSamples);
+        Imgcodecs.imwrite(String.format("%s%s%s", pathName, System.getProperty("file.separator"), reponseFileName), _trainingResponses);
     }
 
     /**
      * Load previously saved dataset and trains knn
      * @param pathName
      */
-    public void loadAndTrain(String pathName)
+    public void loadPreviousDataSet(String pathName)
     {
-        _trainingSamples = Imgcodecs.imread(pathName + "_samp");
-        _trainingResponses = Imgcodecs.imread(pathName + "_resp");
-        this.doTrain();
+        setText("Loading Previous Data Set", generalStatus);
+        _trainingSamples = Imgcodecs.imread(String.format("%s%s%s", pathName, System.getProperty("file.separator"), sampleFileName));
+        _trainingResponses = Imgcodecs.imread(String.format("%s%s%s", pathName, System.getProperty("file.separator"), reponseFileName));
     }
 
     private Mat preProc(@NotNull Mat m)
@@ -189,7 +194,7 @@ public class Classifier
      * Splits _dataset into _trainingSet and _testSet.
      * @param ratio Size ratio of _trainingSet over _testSet.
      */
-    private void splitDataset(float ratio)
+    private void splitDataset(double ratio)
     {
         setText("Splitting Data Set", generalStatus);
         _dataset.forEach((key, value) ->
@@ -225,9 +230,9 @@ public class Classifier
         setText("Building Data Set", generalStatus);
         for (char c : _charClasses)
         {
-            List<File> tmp = this.getDirContents(String.format("%s/%s", dataSetDirectoryPath, c));
+            List<File> tmp = this.getDirContents(String.format("%s%s%s", dataSetDirectoryPath, System.getProperty("file.separator"), c));
 
-            setText("Transforming images from '" + c + "'", detailsStatus);
+            setText(String.format("Transforming images from '%s'", c), detailsStatus);
             setProgress(0f, detailsProgressBar);
             float nb_details_steps = tmp.size();
             float current = 0f;
@@ -254,11 +259,14 @@ public class Classifier
         return Arrays.stream(tmp).filter(File::isFile).collect(Collectors.toList());
     }
 
-    private void doTrain()
+    public void doTrain()
     {
-        setText("Start training", detailsStatus);
+        _knn = KNearest.create();
+        setText("Start training", generalStatus);
+        setText("...", detailsStatus);
         _trainingSamples.convertTo(_trainingSamples, CvType.CV_32F);
         _trainingResponses.convertTo(_trainingResponses, CvType.CV_32F);
         _knn.train(_trainingSamples, Ml.ROW_SAMPLE, _trainingResponses);
+        setText("Done", generalStatus);
     }
 }

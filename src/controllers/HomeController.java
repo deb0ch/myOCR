@@ -37,44 +37,98 @@ public class HomeController
 //        debugPreProcessButton.setVisible(false);
 //        center.getChildren().addAll(addSelectTrainingSetDirectory(), classifyButton, debugPreProcessButton, rowLimitBox, colLimitBox);
 //        root.setCenter(center);
-        FXMLLoader chooseDatasetLoader = new FXMLLoader(getClass().getResource("./../views/chooseDataSet.fxml"));
-        BorderPane chooseDataSet = chooseDatasetLoader.load();
-        ChooseDataSetDirectoryController chooseDataSetDirectoryController = chooseDatasetLoader.getController();
+        String workingDirectory = System.getProperty("user.dir");
+
+        FXMLLoader cDSDLoadder = new FXMLLoader(getClass().getResource("../views/cDSD.fxml"));
+        BorderPane cDSDBorderPane = cDSDLoadder.load();
+        CDSDController cDSDController = cDSDLoadder.getController();
 
         FXMLLoader tDSLoader = new FXMLLoader(getClass().getResource("../views/loadingView.fxml"));
         BorderPane tDSBorderPane = tDSLoader.load();
         LoadingController tDSController = tDSLoader.getController();
 
-        Button chooseDataSetDirectoryButton = chooseDataSetDirectoryController.getChooseDataSetDirectoryButton();
-        chooseDataSetDirectoryButton.setOnAction(event -> {
-            DirectoryChooser directoryChooser = new DirectoryChooser();
-            directoryChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
-            File trainningSetDirectory = directoryChooser.showDialog(null);
-            if (trainningSetDirectory != null)
-            {
-                root.setCenter(tDSBorderPane);
-                classifier =
-                        new Classifier(tDSController.generalProgressBar,
-                                tDSController.detailsProgressBar,
-                                tDSController.generalLabel,
-                                tDSController.detailsLabel);
+        tDSController.nextButton.setDisable(true);
+        tDSController.saveButton.setDisable(true);
+        tDSController.saveButton
+                .setOnAction(event ->
+                {
+                    classifier.save(workingDirectory);
+                    System.out.println("HomeController.initialize");
+                    tDSController.nextButton.setDisable(false);
+                });
 
-                tDSController
-                        .generalProgressBar
-                        .progressProperty()
-                        .addListener((observable, oldValue, newValue) ->
-                        {
-                            if (newValue.floatValue() >= 1f)
-                            {
-                                root.setCenter(addReturnButton());
-                            }
-                        });
-                new Thread(() -> {
-                    classifier.buildDatasetAndTrain(trainningSetDirectory);
-                }).start();
+//          TODO go to process panel
+        tDSController.nextButton.setOnAction(event ->
+        {
+            event.consume();
+            root.getChildren().clear();
+            try
+            {
+                this.initialize();
+            } catch (IOException ignored)
+            {
+//            e.printStackTrace();
             }
         });
-        root.setCenter(chooseDataSet);
+
+        File savedSamplesFile =
+                new File(String.format("%s%s%s",
+                        workingDirectory,
+                        System.getProperty("file.separator"),
+                        Classifier.sampleFileName));
+        File savedResponsesFile =
+                new File(String.format("%s%s%s",
+                        workingDirectory,
+                        System.getProperty("file.separator"),
+                        Classifier.reponseFileName));
+        classifier =
+                new Classifier(tDSController.generalProgressBar,
+                        tDSController.detailsProgressBar,
+                        tDSController.generalLabel,
+                        tDSController.detailsLabel);
+        cDSDController.trainButton.setDisable(true);
+        File tmp = null;
+        if (savedResponsesFile.exists() && savedSamplesFile.exists())
+        {
+            classifier.loadPreviousDataSet(workingDirectory);
+            cDSDController.trainButton.setDisable(false);
+            cDSDController.cDSDButton.setDisable(true);
+        }
+        else
+        {
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            directoryChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+            tmp = directoryChooser.showDialog(null);
+            if (tmp != null)
+            {
+                cDSDController.trainButton.setDisable(false);
+                cDSDController.cDSDButton.setDisable(true);
+            }
+        }
+        final File dSD = tmp;
+        cDSDController
+                .trainButton
+                .setOnAction(event ->
+                {
+                    root.setCenter(tDSBorderPane);
+                    tDSController
+                            .generalProgressBar
+                            .progressProperty()
+                            .addListener((observable, oldValue, newValue) ->
+                            {
+                                if (newValue.floatValue() >= 1f)
+                                {
+                                    tDSController.saveButton.setDisable(false);
+                                }
+                            });
+                    new Thread(() ->
+                    {
+                        if (dSD != null)
+                            classifier.buildDatasetAndTrain(dSD, cDSDController.ratioSlider.getValue());
+                        classifier.doTrain();
+                    }).start();
+                });
+        root.setCenter(cDSDBorderPane);
     }
 
 

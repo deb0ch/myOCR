@@ -4,3 +4,6 @@ gradle.xml
 .idea/libraries
 *.iws
 out
+*.log
+_resp.bmp
+_samp.bmp
