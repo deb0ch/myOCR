@@ -25,11 +25,18 @@ public class Classifier
     /*
      * Public
      */
+    public static final int KNN_K_VALUE = 3;
 
     public Classifier(@NotNull Mat img, @NotNull File dataSetDirectory, @NotNull Pane root)
     {}
 
-    public void train(File dataSetDirectory)
+    public Map<String, List<Mat>> get_dataset()  { return _dataset; }
+
+    public Map<String, List<Mat>> get_trainingSet()  { return _trainingSet; }
+
+    public Map<String, List<Mat>> get_testSet()  { return _testSet; }
+
+    public void buildDatasetAndTrain(File dataSetDirectory)
     {
         _trainingSamples = new Mat();
         _trainingResponses = new Mat(1, 0, CvType.CV_8U);
@@ -48,9 +55,7 @@ public class Classifier
             }
         }
         _trainingResponses = _trainingResponses.reshape(1, 1);
-        _trainingSamples.convertTo(_trainingSamples, CvType.CV_32F);
-        _trainingResponses.convertTo(_trainingResponses, CvType.CV_32F);
-        _knn.train(_trainingSamples, Ml.ROW_SAMPLE, _trainingResponses);
+        this.doTrain();
     }
 
     public Character classify(Mat m)
@@ -62,7 +67,7 @@ public class Classifier
         m = this.preProc(m);
         m = m.reshape(1, 1);
         m.convertTo(m, CvType.CV_32F);
-        _knn.findNearest(m, 3, results, responses, distances);
+        _knn.findNearest(m, KNN_K_VALUE, results, responses, distances);
         return (char)results.get(0, 0)[0];
     }
 
@@ -72,13 +77,15 @@ public class Classifier
         Imgcodecs.imwrite(pathName + "_resp", _trainingResponses);
     }
 
+    /**
+     * Load previously saved dataset and trains knn
+     * @param pathName
+     */
     public void loadAndTrain(String pathName)
     {
         _trainingSamples = Imgcodecs.imread(pathName + "_samp");
         _trainingResponses = Imgcodecs.imread(pathName + "_resp");
-        _trainingSamples.convertTo(_trainingSamples, CvType.CV_32F);
-        _trainingResponses.convertTo(_trainingResponses, CvType.CV_32F);
-        _knn.train(_trainingSamples, Ml.ROW_SAMPLE, _trainingResponses);
+        this.doTrain();
     }
 
     /*
@@ -203,5 +210,12 @@ public class Classifier
                 });
             }
         }
+    }
+
+    private void doTrain()
+    {
+        _trainingSamples.convertTo(_trainingSamples, CvType.CV_32F);
+        _trainingResponses.convertTo(_trainingResponses, CvType.CV_32F);
+        _knn.train(_trainingSamples, Ml.ROW_SAMPLE, _trainingResponses);
     }
 }
