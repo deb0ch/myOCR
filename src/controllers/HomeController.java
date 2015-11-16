@@ -70,6 +70,15 @@ public class HomeController
             if (trainningSetDirectory != null)
             {
                 root.setCenter(loadingTrainingDataSetBorderPane);
+                classifier =
+                        new Classifier(
+                                loadingTrainingDataSetController.getLoadingTrainingSetProgressBar(),
+                                trainningSetDirectory
+                        );
+//                Platform.runLater(() -> classifier.train());
+                new Thread(() -> {
+                    classifier.train();
+                }).start();
             }
         });
         root.setCenter(chooseDataSet);

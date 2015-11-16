@@ -1,11 +1,14 @@
 package processing.classify;
 
 import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
+import javafx.application.Platform;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.Pane;
-import javafx.stage.FileChooser;
-import org.opencv.core.*;
+import javafx.util.Pair;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Rect;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.ml.KNearest;
@@ -15,8 +18,6 @@ import processing.pre.MatManipulator;
 import utils.ErrorHandling;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -26,17 +27,25 @@ import java.util.stream.Collectors;
  */
 public class Classifier
 {
-    public Classifier(@NotNull Mat img, @NotNull File dataSetDirectory, @NotNull Pane root)
+    private KNearest                _knn;
+    private Map<String, List<Mat>>  _dataset = new HashMap<>();
+    private Map<String, List<Mat>>  _trainingSet = new HashMap<>();
+    private Map<String, List<Mat>>  _testSet = new HashMap<>();
+    private ProgressBar progressBar;
+    private String dataSetDirectoryPath;
+
+    public Classifier(@NotNull ProgressBar progressBar, @NotNull File dataSetDirectory)
     {
-//        this.start(img, root);
+        this.progressBar = progressBar;
+        this.dataSetDirectoryPath = dataSetDirectory.getPath();
     }
 
-    public void train(File dataSetDirectory)
+    public void train()
     {
         Mat trainingSamples = new Mat();
         Mat trainingResponses = new Mat(1, 0, CvType.CV_8U);
 
-        this.buildDataset(dataSetDirectory);
+        this.buildDataset();
         this.splitDataset(0.7f);
 
         _knn = KNearest.create();
@@ -58,11 +67,6 @@ public class Classifier
 
         _knn.train(trainingSamples, Ml.ROW_SAMPLE, trainingResponses);
     }
-
-    private KNearest                _knn;
-    private Map<String, List<Mat>>  _dataset = new HashMap<>();
-    private Map<String, List<Mat>>  _trainingSet = new HashMap<>();
-    private Map<String, List<Mat>>  _testSet = new HashMap<>();
 
     private char[]                  _charClasses =
             {
@@ -103,7 +107,7 @@ public class Classifier
                     '9'
             };
 
-    private void start(@NotNull Mat img, @NotNull Pane root)
+    public void start(@NotNull Mat img, @NotNull Pane root)
     {
         if (!img.empty() && img.size().area() > 0)
         {
@@ -124,19 +128,6 @@ public class Classifier
         Imgproc.resize(m, m, new Size(24, 24));
         m = ImageManipulator.applyOtsuBinarysation(m); // Imgproc.resize may break binarization
         return m;
-    }
-
-    private List<File> getDirContents(String path)
-    {
-        File        folder = new File(path);
-
-
-        List<File>  files = new LinkedList<>();
-        File[] filesArray = folder.listFiles();
-        if (filesArray == null)
-            return files;
-        Collections.addAll(files, filesArray);
-        return files.stream().filter(File::isFile).collect(Collectors.toList());
     }
 
     /**
@@ -166,25 +157,49 @@ public class Classifier
      * Iterate through dataset directories, each directory being named according to the character
      * it refers to. Opens every image in these directories and stores them in the _dataset class attribute.
      * Each matrix generated is stored in that map with its label as a key.
-     * @param dataSetDirectory
      */
-    private void buildDataset(File dataSetDirectory)
+    private void buildDataset()
     {
+        List<Pair<Character, List<File>>> subDirectories = new LinkedList<>();
+        int totalElements = 0;
         for (char c : _charClasses)
         {
-            List<File> samples = this.getDirContents(String.format("%s/%s", dataSetDirectory.getPath(), c));
-            if (!samples.isEmpty())
+            List<File> tmp = this.getDirContents(String.format("%s/%s", dataSetDirectoryPath, c));
+            if (!tmp.isEmpty())
             {
-                _dataset.put(String.valueOf(c), new LinkedList<>());
-                samples.forEach(file ->
-                {
-                    Mat smp = Imgcodecs.imread(file.getPath(), Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
-
-                    if (!smp.empty())
-                        _dataset.get(String.valueOf(c)).add(this.preProc(smp));
-                });
+                Pair<Character, List<File>> tmpPair = new Pair<>(c, tmp);
+                totalElements += tmp.size();
+                subDirectories.add(tmpPair);
             }
         }
+        if (totalElements == 0) return;
+        int currentElement = 0;
+        for (Pair<Character, List<File>> subDirectory: subDirectories)
+        {
+            _dataset.put(String.valueOf(subDirectory.getKey()), new LinkedList<>());
+            for (File file: subDirectory.getValue())
+            {
+                Mat smp = Imgcodecs.imread(file.getPath(), Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+                if (!smp.empty())
+                    _dataset.get(String.valueOf(subDirectory.getKey())).add(this.preProc(smp));
+                final int actualNbElements = currentElement++;
+                final int totalNbElements = totalElements;
+                new Thread(() -> {
+                    System.out.println("maj progress Bar: " + (double)actualNbElements/ (double)totalNbElements);
+                    progressBar.setProgress((double)actualNbElements/ (double)totalNbElements);
+                }).start();
+            }
+        }
+    }
+
+    private @NotNull List<File> getDirContents(String path)
+    {
+        File folder = new File(path);
+        File[] tmp = folder.listFiles();
+        if (tmp == null)
+            return new LinkedList<>();
+
+        return Arrays.stream(tmp).filter(File::isFile).collect(Collectors.toList());
     }
 
     public void classify()
