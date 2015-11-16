@@ -72,9 +72,12 @@ public class HomeController
                 root.setCenter(loadingTrainingDataSetBorderPane);
                 classifier = new Classifier(trainningSetDirectory);
 
-//                classifier.getGeneralProgressBar().progressProperty().addListener((observable, oldValue, newValue) -> {
-//                    if (newValue.equals(1f)) root.setCenter(addReturnButton());
-//                });
+                classifier.getGeneralProgressBar().progressProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue.floatValue() >= 1f)
+                    {
+                        root.setCenter(addReturnButton());
+                    }
+                });
                 loadingTrainingDataSetBorderPane.setCenter(new VBox(classifier.generalStatus(), classifier.getGeneralProgressBar()));
                 loadingTrainingDataSetBorderPane.setBottom(new VBox(classifier.detailsStatus(), classifier.getDetailsProgressBar()));
                 new Thread(classifier::train).start();
@@ -149,9 +152,6 @@ public class HomeController
                     HBox box = new HBox();
                     box.getChildren().addAll(addReturnButton(), new Label("Loading and training, please wait"));
                     root.setCenter(box);
-//                    if (classifier == null)
-//                        classifier = new Classifier(ImageManipulator.loadGreyImage(selectedFile), dataSetPath, box);
-//                    classifier.classify();
                 });
             }
         });
@@ -165,7 +165,13 @@ public class HomeController
         {
             event.consume();
             root.getChildren().clear();
-//            this.initialize();
+            try
+            {
+                this.initialize();
+            } catch (IOException ignored)
+            {
+//            e.printStackTrace();
+            }
         });
         return button;
     }

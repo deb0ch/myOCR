@@ -62,23 +62,11 @@ public class Classifier
     private void setProgress(float value, @NotNull ProgressBar p)
     {
         Platform.runLater(() -> p.setProgress(value));
-        try
-        {
-            Thread.sleep(5);
-        } catch (InterruptedException ignored)
-        {
-        }
     }
 
     private void setText(@NotNull String msg, @NotNull Label sp)
     {
         Platform.runLater(() -> sp.setText(msg));
-        try
-        {
-            Thread.sleep(5);
-        } catch (InterruptedException ignored)
-        {
-        }
     }
 
     public void train()
@@ -122,39 +110,39 @@ public class Classifier
     private char[]                  _charClasses =
             {
                     'A', 'a',
-//                    'B', 'b',
-//                    'C', 'c',
-//                    'D', 'd',
-//                    'E', 'e',
-//                    'F', 'f',
-//                    'G', 'g',
-//                    'H', 'h',
-//                    'I', 'i',
-//                    'J', 'j',
-//                    'K', 'k',
-//                    'L', 'l',
-//                    'M', 'm',
-//                    'N', 'n',
-//                    'O', 'o',
-//                    'P', 'p',
-//                    'Q', 'q',
-//                    'R', 'r',
-//                    'S', 's',
-//                    'T', 't',
-//                    'U', 'u',
-//                    'V', 'v',
-//                    'X', 'x',
-//                    'Y', 'y',
-//                    'Z', 'z',
-//                    '0',
-//                    '1',
-//                    '2',
-//                    '3',
-//                    '4',
-//                    '5',
-//                    '6',
-//                    '7',
-//                    '8',
+                    'B', 'b',
+                    'C', 'c',
+                    'D', 'd',
+                    'E', 'e',
+                    'F', 'f',
+                    'G', 'g',
+                    'H', 'h',
+                    'I', 'i',
+                    'J', 'j',
+                    'K', 'k',
+                    'L', 'l',
+                    'M', 'm',
+                    'N', 'n',
+                    'O', 'o',
+                    'P', 'p',
+                    'Q', 'q',
+                    'R', 'r',
+                    'S', 's',
+                    'T', 't',
+                    'U', 'u',
+                    'V', 'v',
+                    'X', 'x',
+                    'Y', 'y',
+                    'Z', 'z',
+                    '0',
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5',
+                    '6',
+                    '7',
+                    '8',
                     '9'
             };
 
@@ -223,7 +211,7 @@ public class Classifier
         {
             List<File> tmp = this.getDirContents(String.format("%s/%s", dataSetDirectoryPath, c));
 
-            setText("Transforming images", detailsStatus);
+            setText("Transforming images from '" + c + "'", detailsStatus);
             setProgress(0f, detailsProgressBar);
             float nb_details_steps = tmp.size();
             float current = 0f;
@@ -234,7 +222,7 @@ public class Classifier
                 Mat smp = Imgcodecs.imread(file.getPath(), Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
                 if (!smp.empty())
                     _dataset.get(String.valueOf(c)).add(this.preProc(smp));
-                setProgress(current/ nb_details_steps, detailsProgressBar);
+                setProgress(current++/ nb_details_steps, detailsProgressBar);
             }
         }
         setProgress(NB_BUILD_DATA_SET/NB_GENERAL_STEPS, generalProgressBar);
