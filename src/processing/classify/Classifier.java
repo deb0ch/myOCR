@@ -1,24 +1,20 @@
 package processing.classify;
 
 import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.Pane;
-import javafx.stage.FileChooser;
-import org.opencv.core.*;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Rect;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.ml.KNearest;
 import org.opencv.ml.Ml;
 import processing.pre.ImageManipulator;
 import processing.pre.MatManipulator;
-import utils.ErrorHandling;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -37,7 +33,6 @@ public class Classifier
     {
         _trainingSamples = new Mat();
         _trainingResponses = new Mat(1, 0, CvType.CV_8U);
-
         this.buildDataset(dataSetDirectory);
         this.splitDataset(0.7f);
         _knn = KNearest.create();
