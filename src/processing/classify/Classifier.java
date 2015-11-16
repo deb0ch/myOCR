@@ -1,7 +1,12 @@
+/**
+ * Created by sal on 11/11/15.
+ */
+
 package processing.classify;
 
 import com.sun.istack.internal.NotNull;
-import javafx.scene.layout.Pane;
+import javafx.scene.control.ProgressBar;
+import javafx.util.Pair;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
@@ -17,18 +22,18 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Created by sal on 11/11/15.
- */
 public class Classifier
 {
     /*
      * Public
      */
+
     public static final int KNN_K_VALUE = 3;
 
-    public Classifier(@NotNull Mat img, @NotNull File dataSetDirectory, @NotNull Pane root)
-    {}
+    public Classifier(@NotNull ProgressBar _progressBar)
+    {
+        this._progressBar = _progressBar;
+    }
 
     public Map<String, List<Mat>> get_dataset()  { return _dataset; }
 
@@ -99,6 +104,7 @@ public class Classifier
 
     private Mat                     _trainingSamples = new Mat();
     private Mat                     _trainingResponses = new Mat(1, 0, CvType.CV_8U);
+    private ProgressBar             _progressBar;
 
     private char[]                  _charClasses =
             {
@@ -150,19 +156,6 @@ public class Classifier
         return m;
     }
 
-    private List<File> getDirContents(String path)
-    {
-        File        folder = new File(path);
-
-
-        List<File>  files = new LinkedList<>();
-        File[] filesArray = folder.listFiles();
-        if (filesArray == null)
-            return files;
-        Collections.addAll(files, filesArray);
-        return files.stream().filter(File::isFile).collect(Collectors.toList());
-    }
-
     /**
      * Splits _dataset into _trainingSet and _testSet.
      * @param ratio Size ratio of _trainingSet over _testSet.
@@ -191,25 +184,49 @@ public class Classifier
      * Iterate through dataset directories, each directory being named according to the character
      * it refers to. Opens every image in these directories and stores them in the _dataset class attribute.
      * Each matrix generated is stored in that map with its label as a key.
-     * @param dataSetDirectory
      */
-    private void buildDataset(File dataSetDirectory)
+    private void buildDataset(File dataSetDirectoryPath)
     {
+        List<Pair<Character, List<File>>> subDirectories = new LinkedList<>();
+        int totalElements = 0;
         for (char c : _charClasses)
         {
-            List<File> samples = this.getDirContents(String.format("%s/%s", dataSetDirectory.getPath(), c));
-            if (!samples.isEmpty())
+            List<File> tmp = this.getDirContents(String.format("%s/%s", dataSetDirectoryPath, c));
+            if (!tmp.isEmpty())
             {
-                _dataset.put(String.valueOf(c), new LinkedList<>());
-                samples.forEach(file ->
-                {
-                    Mat smp = Imgcodecs.imread(file.getPath(), Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
-
-                    if (!smp.empty())
-                        _dataset.get(String.valueOf(c)).add(this.preProc(smp));
-                });
+                Pair<Character, List<File>> tmpPair = new Pair<>(c, tmp);
+                totalElements += tmp.size();
+                subDirectories.add(tmpPair);
             }
         }
+        if (totalElements == 0) return;
+        int currentElement = 0;
+        for (Pair<Character, List<File>> subDirectory: subDirectories)
+        {
+            _dataset.put(String.valueOf(subDirectory.getKey()), new LinkedList<>());
+            for (File file: subDirectory.getValue())
+            {
+                Mat smp = Imgcodecs.imread(file.getPath(), Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+                if (!smp.empty())
+                    _dataset.get(String.valueOf(subDirectory.getKey())).add(this.preProc(smp));
+                final int actualNbElements = currentElement++;
+                final int totalNbElements = totalElements;
+                new Thread(() -> {
+                    System.out.println("maj progress Bar: " + (double)actualNbElements/ (double)totalNbElements);
+                    _progressBar.setProgress((double) actualNbElements / (double) totalNbElements);
+                }).start();
+            }
+        }
+    }
+
+    private @NotNull List<File> getDirContents(String path)
+    {
+        File folder = new File(path);
+        File[] tmp = folder.listFiles();
+        if (tmp == null)
+            return new LinkedList<>();
+
+        return Arrays.stream(tmp).filter(File::isFile).collect(Collectors.toList());
     }
 
     private void doTrain()

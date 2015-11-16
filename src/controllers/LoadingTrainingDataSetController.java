@@ -14,7 +14,10 @@ public class LoadingTrainingDataSetController
     @FXML
     private ProgressBar loadingTrainingSetProgressBar;
 
-
+    public ProgressBar getLoadingTrainingSetProgressBar()
+    {
+        return loadingTrainingSetProgressBar;
+    }
 
     @FXML
     private void initialize()
