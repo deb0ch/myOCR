@@ -112,7 +112,7 @@ public class Classifier
 
     public Map<String, List<Mat>> get_testSet()  { return _testSet; }
 
-    public void buildDatasetAndTrain(File dataSetDirectory, double ratio)
+    public void buildDataSet(File dataSetDirectory, double ratio)
     {
         _trainingSamples = new Mat();
         _trainingResponses = new Mat(1, 0, CvType.CV_8U);
@@ -160,12 +160,12 @@ public class Classifier
         return (char)results.get(0, 0)[0];
     }
 
-    public static final String sampleFileName = "_samp.bmp";
-    public static final String reponseFileName = "_resp.bmp";
+    public static final String sampleFileName = "_samp.png";
+    public static final String responseFileName = "_resp.png";
     public void save(String pathName)
     {
         Imgcodecs.imwrite(String.format("%s%s%s", pathName, System.getProperty("file.separator"), sampleFileName), _trainingSamples);
-        Imgcodecs.imwrite(String.format("%s%s%s", pathName, System.getProperty("file.separator"), reponseFileName), _trainingResponses);
+        Imgcodecs.imwrite(String.format("%s%s%s", pathName, System.getProperty("file.separator"), responseFileName), _trainingResponses);
     }
 
     /**
@@ -176,7 +176,7 @@ public class Classifier
     {
         setText("Loading Previous Data Set", generalStatus);
         _trainingSamples = Imgcodecs.imread(String.format("%s%s%s", pathName, System.getProperty("file.separator"), sampleFileName));
-        _trainingResponses = Imgcodecs.imread(String.format("%s%s%s", pathName, System.getProperty("file.separator"), reponseFileName));
+        _trainingResponses = Imgcodecs.imread(String.format("%s%s%s", pathName, System.getProperty("file.separator"), responseFileName));
     }
 
     private Mat preProc(@NotNull Mat m)
@@ -264,8 +264,15 @@ public class Classifier
         _knn = KNearest.create();
         setText("Start training", generalStatus);
         setText("...", detailsStatus);
+        // FIXME functions have no effect
         _trainingSamples.convertTo(_trainingSamples, CvType.CV_32F);
         _trainingResponses.convertTo(_trainingResponses, CvType.CV_32F);
+
+//        System.out.println(_trainingSamples.type() == CvType.CV_32F);
+//        System.out.println(_trainingResponses.type() == CvType.CV_32F);
+//        System.out.println(_trainingSamples.type());
+//        System.out.println(CvType.CV_32F);
+
         _knn.train(_trainingSamples, Ml.ROW_SAMPLE, _trainingResponses);
         setText("Done", generalStatus);
     }

@@ -20,6 +20,7 @@ public class HomeController
     private BorderPane root;
 
     private Classifier classifier;
+    private File dSD;
 
     @FXML
     private void initialize() throws IOException
@@ -39,13 +40,17 @@ public class HomeController
 //        root.setCenter(center);
         String workingDirectory = System.getProperty("user.dir");
 
-        FXMLLoader cDSDLoadder = new FXMLLoader(getClass().getResource("../views/cDSD.fxml"));
-        BorderPane cDSDBorderPane = cDSDLoadder.load();
-        CDSDController cDSDController = cDSDLoadder.getController();
+        FXMLLoader cDSDLoader = new FXMLLoader(getClass().getResource("../views/cDSD.fxml"));
+        BorderPane cDSDBorderPane = cDSDLoader.load();
+        CDSDController cDSDController = cDSDLoader.getController();
 
         FXMLLoader tDSLoader = new FXMLLoader(getClass().getResource("../views/loadingView.fxml"));
         BorderPane tDSBorderPane = tDSLoader.load();
         LoadingController tDSController = tDSLoader.getController();
+
+        FXMLLoader processLoader = new FXMLLoader(getClass().getResource("../views/process.fxml"));
+        BorderPane processBP = processLoader.load();
+        ProcessController processController = processLoader.getController();
 
         tDSController.nextButton.setDisable(true);
         tDSController.saveButton.setDisable(true);
@@ -53,22 +58,12 @@ public class HomeController
                 .setOnAction(event ->
                 {
                     classifier.save(workingDirectory);
-                    System.out.println("HomeController.initialize");
                     tDSController.nextButton.setDisable(false);
                 });
 
-//          TODO go to process panel
         tDSController.nextButton.setOnAction(event ->
         {
-            event.consume();
-            root.getChildren().clear();
-            try
-            {
-                this.initialize();
-            } catch (IOException ignored)
-            {
-//            e.printStackTrace();
-            }
+            root.setCenter(processBP);
         });
 
         File savedSamplesFile =
@@ -80,32 +75,29 @@ public class HomeController
                 new File(String.format("%s%s%s",
                         workingDirectory,
                         System.getProperty("file.separator"),
-                        Classifier.reponseFileName));
+                        Classifier.responseFileName));
         classifier =
                 new Classifier(tDSController.generalProgressBar,
                         tDSController.detailsProgressBar,
                         tDSController.generalLabel,
                         tDSController.detailsLabel);
         cDSDController.trainButton.setDisable(true);
-        File tmp = null;
+        cDSDController.cDSDButton.setOnAction(event ->
+        {
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            directoryChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+            setdSD(directoryChooser.showDialog(null));
+            cDSDController.trainButton.setDisable(dSD == null);
+        });
         if (savedResponsesFile.exists() && savedSamplesFile.exists())
         {
             classifier.loadPreviousDataSet(workingDirectory);
             cDSDController.trainButton.setDisable(false);
-            cDSDController.cDSDButton.setDisable(true);
-        }
-        else
+        } else
         {
-            DirectoryChooser directoryChooser = new DirectoryChooser();
-            directoryChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
-            tmp = directoryChooser.showDialog(null);
-            if (tmp != null)
-            {
-                cDSDController.trainButton.setDisable(false);
-                cDSDController.cDSDButton.setDisable(true);
-            }
+            cDSDController.cDSDButton.fire();
         }
-        final File dSD = tmp;
+
         cDSDController
                 .trainButton
                 .setOnAction(event ->
@@ -124,8 +116,9 @@ public class HomeController
                     new Thread(() ->
                     {
                         if (dSD != null)
-                            classifier.buildDatasetAndTrain(dSD, cDSDController.ratioSlider.getValue());
-                        classifier.doTrain();
+                            classifier.buildDataSet(dSD, cDSDController.ratioSlider.getValue());
+                        else
+                            classifier.doTrain();
                     }).start();
                 });
         root.setCenter(cDSDBorderPane);
@@ -219,5 +212,10 @@ public class HomeController
             }
         });
         return button;
+    }
+
+    public void setdSD(File dSD)
+    {
+        this.dSD = dSD;
     }
 }

@@ -5,5 +5,5 @@ gradle.xml
 *.iws
 out
 *.log
-_resp.bmp
-_samp.bmp
+_resp.png
+_samp.png

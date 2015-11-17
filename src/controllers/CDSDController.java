@@ -27,11 +27,6 @@ public class CDSDController
         cDSDButton.setText("Choose Directory");
         trainButton.setText("Train");
         // configure Slider
-        ratioSlider.setMin(0d);
-        ratioSlider.setMax(1d);
-        ratioSlider.setBlockIncrement(0.1d);
-        ratioSlider.setValue(0.5d);
-        ratioSlider.setShowTickLabels(true);
-        ratioSlider.setShowTickMarks(true);
+        ProcessController.configSlider(ratioSlider, 0d, 1d, 0.1d, 0.7d, true, true);
     }
 }
