@@ -1,20 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
 <BorderPane fx:id="root" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ClassifyController">
-<left>
 
-</left>
-    <right>
-
-    </right>
-    <top>
-
-    </top>
     <center>
-
+        <HBox>
+            <Label fx:id="resultLabel"/>
+        </HBox>
     </center>
-    <bottom>
-
-    </bottom>
 </BorderPane>

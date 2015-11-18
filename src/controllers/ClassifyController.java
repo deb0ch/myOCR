@@ -1,6 +1,7 @@
 package controllers;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 
 /**
@@ -9,12 +10,16 @@ import javafx.scene.layout.BorderPane;
 public class ClassifyController
 {
     @FXML
-    BorderPane root;
+    private BorderPane root;
+    @FXML
+    public Label resultLabel;
     // add stuff here
 
     @FXML
     private void initialize()
     {
         // do stuff here
+        System.out.println("ClassifyController.initialize");
+        resultLabel.setText("");
     }
 }

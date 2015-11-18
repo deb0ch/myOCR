@@ -2,7 +2,6 @@ package controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -15,9 +14,11 @@ import processing.pre.ImageManipulator;
 import processing.pre.LettersSplitter;
 import processing.pre.LinesSplitter;
 import processing.pre.WordsSplitter;
+import utils.ErrorHandling;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
 
 /**
  * Created by sal on 11/11/15.
@@ -56,16 +57,20 @@ public class HomeController
                 Mat m = ImageManipulator.loadGreyImage(choosedFile);
                 if (!m.empty())
                 {
-                    classifier.classify(m);
+                    Character c = classifier.classify(m);
                     try
                     {
-                        FXMLLoader classifyLoader = new FXMLLoader(getClass().getResource("../views/process.fxml"));
+                        FXMLLoader classifyLoader = new FXMLLoader(getClass().getResource("../views/classify.fxml"));
                         BorderPane classifyBorderPane = classifyLoader.load();
                         ClassifyController classifyController = classifyLoader.getController();
                         // do stuff
+                        classifyController.resultLabel.setText(c.toString());
+                        root.setBottom(classifyBorderPane);
                     }
-                    catch (IOException ignored)
+                    catch (IOException e)
                     {
+                        ErrorHandling.log(Level.WARNING,
+                                          String.format("%s\n%s", e.getLocalizedMessage(), e.getMessage()));
                     }
                 }
 
@@ -159,18 +164,18 @@ public class HomeController
                 {
                     root.setCenter(tDSBorderPane);
                     tDSController
-                            .generalProgressBar
-                            .progressProperty()
-                            .addListener((observable, oldValue, newValue) ->
-                            {
-                                if (newValue.floatValue() >= 1f)
-                                {
-                                    if (savedResponsesFile.exists() && savedSamplesFile.exists())
-                                        tDSController.nextButton.setDisable(false);
-                                    else
-                                        tDSController.saveButton.setDisable(false);
-                                }
-                            });
+                     .generalProgressBar
+                     .progressProperty()
+                     .addListener((observable, oldValue, newValue) ->
+                     {
+                         if (newValue.floatValue() >= 1f)
+                         {
+                             if (savedResponsesFile.exists() && savedSamplesFile.exists())
+                                 tDSController.nextButton.setDisable(false);
+                             else
+                                 tDSController.saveButton.setDisable(false);
+                         }
+                     });
                     new Thread(() ->
                     {
                         if (dSD != null)

@@ -37,40 +37,40 @@ public class Classifier
 
     private char[]                  _charClasses =
             {
-//                    'A', 'a',
-//                    'B', 'b',
-//                    'C', 'c',
-//                    'D', 'd',
-//                    'E', 'e',
-//                    'F', 'f',
-//                    'G', 'g',
-//                    'H', 'h',
-//                    'I', 'i',
-//                    'J', 'j',
-//                    'K', 'k',
-//                    'L', 'l',
-//                    'M', 'm',
-//                    'N', 'n',
-//                    'O', 'o',
-//                    'P', 'p',
-//                    'Q', 'q',
-//                    'R', 'r',
-//                    'S', 's',
-//                    'T', 't',
-//                    'U', 'u',
-//                    'V', 'v',
-//                    'X', 'x',
-//                    'Y', 'y',
-//                    'Z', 'z',
-//                    '0',
-//                    '1',
-//                    '2',
-//                    '3',
-//                    '4',
-//                    '5',
-//                    '6',
-//                    '7',
-//                    '8',
+                    'A', 'a',
+                    'B', 'b',
+                    'C', 'c',
+                    'D', 'd',
+                    'E', 'e',
+                    'F', 'f',
+                    'G', 'g',
+                    'H', 'h',
+                    'I', 'i',
+                    'J', 'j',
+                    'K', 'k',
+                    'L', 'l',
+                    'M', 'm',
+                    'N', 'n',
+                    'O', 'o',
+                    'P', 'p',
+                    'Q', 'q',
+                    'R', 'r',
+                    'S', 's',
+                    'T', 't',
+                    'U', 'u',
+                    'V', 'v',
+                    'X', 'x',
+                    'Y', 'y',
+                    'Z', 'z',
+                    '0',
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5',
+                    '6',
+                    '7',
+                    '8',
                     '9'
             };
 
@@ -80,8 +80,10 @@ public class Classifier
 
     private ProgressBar generalProgressBar;
     private ProgressBar detailsProgressBar;
+
     private Label generalStatus;
     private Label detailsStatus;
+
     private final float NB_BUILD_DATA_SET = 1f;
     private final float NB_SPLIT_DATA_SET = NB_BUILD_DATA_SET + 1f;
     private final float NB_KNN = NB_SPLIT_DATA_SET + 1f;
@@ -240,6 +242,7 @@ public class Classifier
 
             setText(String.format("Transforming images from '%s'", c), detailsStatus);
             setProgress(0f, detailsProgressBar);
+
             float nb_details_steps = tmp.size();
             float current = 0f;
 
