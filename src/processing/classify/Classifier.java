@@ -175,8 +175,14 @@ public class Classifier
     public void loadPreviousDataSet(String pathName)
     {
         setText("Loading Previous Data Set", generalStatus);
-        _trainingSamples = Imgcodecs.imread(String.format("%s%s%s", pathName, System.getProperty("file.separator"), sampleFileName));
-        _trainingResponses = Imgcodecs.imread(String.format("%s%s%s", pathName, System.getProperty("file.separator"), responseFileName));
+        _trainingSamples =
+                Imgcodecs.imread(
+                        String.format("%s%s%s", pathName, System.getProperty("file.separator"), sampleFileName),
+                        Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+        _trainingResponses =
+                Imgcodecs.imread(
+                        String.format("%s%s%s", pathName, System.getProperty("file.separator"), responseFileName),
+                        Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
     }
 
     private Mat preProc(@NotNull Mat m)
@@ -261,13 +267,10 @@ public class Classifier
 
     public void doTrain()
     {
+        System.out.println("Classifier.doTrain");
         _knn = KNearest.create();
         setText("Start training", generalStatus);
         setText("...", detailsStatus);
-
-        // img have 3 channels, so reconvert them to only 1
-        Imgproc.cvtColor(_trainingSamples, _trainingSamples, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.cvtColor(_trainingResponses, _trainingResponses, Imgproc.COLOR_BGR2GRAY);
 
         _trainingSamples.convertTo(_trainingSamples, CvType.CV_32FC1);
         _trainingResponses.convertTo(_trainingResponses, CvType.CV_32FC1);

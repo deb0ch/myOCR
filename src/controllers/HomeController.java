@@ -155,8 +155,8 @@ public class HomeController
                     {
                         if (dSD != null)
                             classifier.buildDataSet(dSD, cDSDController.ratioSlider.getValue());
-                        else
-                            classifier.doTrain();
+//                        else
+                        classifier.doTrain();
                     }).start();
                 });
         root.setCenter(cDSDBorderPane);
