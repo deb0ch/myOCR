@@ -79,11 +79,17 @@ public class HomeController
                     VBox tmpBox = new VBox();
                     for (Mat line: linesSplitter.split())
                     {
+                        System.out.println("Split words");
                         WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox, colLimit, rowLimit);
                         VBox tmpBox2 = new VBox();
                         for (Mat word: wordsSplitter.split())
                         {
+                            System.out.println("Split letters");
                             LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
+                            for (Mat letter: lettersSplitter.split())
+                            {
+                                System.out.println("letters");
+                            }
                         }
                         tmpBox.getChildren().add(tmpBox2);
                     }

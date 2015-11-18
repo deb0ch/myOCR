@@ -8,19 +8,19 @@
             <HBox alignment="CENTER">
                 <Button fx:id="classifyButton" text="Classify"/>
             </HBox>
-            <HBox alignment="CENTER">
-                <VBox>
-                    <HBox spacing="5">
-                        <Label fx:id="colLimitLabel"/>
-                        <Slider fx:id="colLimitSlider"/>
-                    </HBox>
-                    <HBox spacing="5">
-                        <Label fx:id="rowLimitLabel"/>
-                        <Slider fx:id="rowLimitSlider"/>
-                    </HBox>
-                </VBox>
+            <VBox spacing="20" alignment="CENTER">
+                <HBox spacing="5">
+                    <Slider fx:id="colLimitSlider"/>
+                    <Label fx:id="colLimitLabel"/>
+                    <Label fx:id="colLimitValueLabel"/>
+                </HBox>
+                <HBox spacing="5">
+                    <Slider fx:id="rowLimitSlider"/>
+                    <Label fx:id="rowLimitLabel"/>
+                    <Label fx:id="rowLimitValueLabel"/>
+                </HBox>
                 <Button fx:id="pPDButton" text="Debug"/>
-            </HBox>
+            </VBox>
         </VBox>
     </center>
 </BorderPane>
