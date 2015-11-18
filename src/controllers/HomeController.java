@@ -110,7 +110,10 @@ public class HomeController
                             {
                                 if (newValue.floatValue() >= 1f)
                                 {
-                                    tDSController.saveButton.setDisable(false);
+                                    if (savedResponsesFile.exists() && savedSamplesFile.exists())
+                                        tDSController.nextButton.setDisable(false);
+                                    else
+                                        tDSController.saveButton.setDisable(false);
                                 }
                             });
                     new Thread(() ->

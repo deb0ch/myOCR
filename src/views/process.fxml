@@ -4,17 +4,17 @@
 <?import javafx.scene.layout.*?>
 <BorderPane fx:id="root" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ProcessController">
     <center>
-        <VBox>
-            <HBox>
+        <VBox alignment="CENTER" spacing="20">
+            <HBox alignment="CENTER">
                 <Button fx:id="classifyButton" text="Classify"/>
             </HBox>
-            <HBox>
+            <HBox alignment="CENTER">
                 <VBox>
-                    <HBox>
+                    <HBox spacing="5">
                         <Label fx:id="colLimitLabel"/>
                         <Slider fx:id="colLimitSlider"/>
                     </HBox>
-                    <HBox>
+                    <HBox spacing="5">
                         <Label fx:id="rowLimitLabel"/>
                         <Slider fx:id="rowLimitSlider"/>
                     </HBox>

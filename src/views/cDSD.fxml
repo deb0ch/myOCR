@@ -15,7 +15,7 @@
         </HBox>
     </top>
     <center>
-        <VBox maxHeight="Infinity" maxWidth="Infinity" alignment="CENTER">
+        <VBox maxHeight="Infinity" maxWidth="Infinity" alignment="CENTER" spacing="20">
             <Button fx:id="cDSDButton"/>
             <Button fx:id="trainButton"/>
         </VBox>

@@ -264,16 +264,16 @@ public class Classifier
         _knn = KNearest.create();
         setText("Start training", generalStatus);
         setText("...", detailsStatus);
-        // FIXME functions have no effect
-        _trainingSamples.convertTo(_trainingSamples, CvType.CV_32F);
-        _trainingResponses.convertTo(_trainingResponses, CvType.CV_32F);
 
-//        System.out.println(_trainingSamples.type() == CvType.CV_32F);
-//        System.out.println(_trainingResponses.type() == CvType.CV_32F);
-//        System.out.println(_trainingSamples.type());
-//        System.out.println(CvType.CV_32F);
+        // img have 3 channels, so reconvert them to only 1
+        Imgproc.cvtColor(_trainingSamples, _trainingSamples, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.cvtColor(_trainingResponses, _trainingResponses, Imgproc.COLOR_BGR2GRAY);
+
+        _trainingSamples.convertTo(_trainingSamples, CvType.CV_32FC1);
+        _trainingResponses.convertTo(_trainingResponses, CvType.CV_32FC1);
 
         _knn.train(_trainingSamples, Ml.ROW_SAMPLE, _trainingResponses);
+        setProgress(1f, generalProgressBar);
         setText("Done", generalStatus);
     }
 }
