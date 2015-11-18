@@ -37,6 +37,7 @@ public class LettersSplitter extends Splitter
     @Override
     protected void showDebug()
     {
+        System.out.println("LettersSplitter.showDebug");
         super.showDebug();
         for (Mat letter: this.split())
         {

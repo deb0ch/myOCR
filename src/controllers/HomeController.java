@@ -55,7 +55,20 @@ public class HomeController
             {
                 Mat m = ImageManipulator.loadGreyImage(choosedFile);
                 if (!m.empty())
+                {
                     classifier.classify(m);
+                    try
+                    {
+                        FXMLLoader classifyLoader = new FXMLLoader(getClass().getResource("../views/process.fxml"));
+                        BorderPane classifyBorderPane = classifyLoader.load();
+                        ClassifyController classifyController = classifyLoader.getController();
+                        // do stuff
+                    }
+                    catch (IOException ignored)
+                    {
+                    }
+                }
+
             }
         });
 
@@ -79,17 +92,14 @@ public class HomeController
                     VBox tmpBox = new VBox();
                     for (Mat line: linesSplitter.split())
                     {
-                        System.out.println("Split words");
                         WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox, colLimit, rowLimit);
                         VBox tmpBox2 = new VBox();
                         for (Mat word: wordsSplitter.split())
                         {
-                            System.out.println("Split letters");
                             LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
-                            for (Mat letter: lettersSplitter.split())
-                            {
-                                System.out.println("letters");
-                            }
+//                            for (Mat letter: lettersSplitter.split())
+//                            {
+//                            }
                         }
                         tmpBox.getChildren().add(tmpBox2);
                     }

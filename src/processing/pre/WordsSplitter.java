@@ -34,6 +34,13 @@ public class WordsSplitter extends Splitter
     }
 
     @Override
+    protected void showDebug()
+    {
+        super.showDebug();
+//        System.out.println("WordsSplitter.showDebug");
+    }
+
+    @Override
     public List<Mat> split()
     {
         int[] columnsHistogram = getColumnsHistogram();
@@ -81,7 +88,9 @@ public class WordsSplitter extends Splitter
         {
             ErrorHandling.log(Level.WARNING,
                     String.format("No distances were found: %s", getClass().getName()));
-            return new LinkedList<>();
+            List<Mat> tmp = new LinkedList<>();
+            tmp.add(getImg());
+            return tmp;
         }
 
         // calculate average dist between all letters found in a line

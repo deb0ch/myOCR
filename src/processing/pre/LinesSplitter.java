@@ -37,6 +37,13 @@ public class LinesSplitter extends Splitter {
     }
 
     @Override
+    protected void showDebug()
+    {
+        super.showDebug();
+//        System.out.println("LinesSplitter.showDebug");
+    }
+
+    @Override
     public List<Mat> split()
     {
         // get the col limits to the biggest line in the paragraph

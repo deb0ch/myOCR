@@ -34,14 +34,9 @@ public class ProcessController
     @FXML
     private void initialize()
     {
-        // configure Buttons
-        // configure Labels
-        colLimitLabel.setText("columns limit:");
-        rowLimitLabel.setText("rows limit:");
-        rowLimitLabel.setPrefWidth(colLimitLabel.getPrefWidth());
         // configure Sliders
-        configSlider(rowLimitSlider, 0d, 20d, 1d, 0d, true, true);
-        configSlider(colLimitSlider, 0d, 20d, 1d, 0d, true, true);
+        configSlider(rowLimitSlider, 0d, 20d, 0.1d, 0d, true, true);
+        configSlider(colLimitSlider, 0d, 20d, 0.1d, 0d, true, true);
         colLimitSlider.valueProperty().addListener((observable, oldValue, newValue) ->
         {
             colLimitValueLabel.setText(newValue.toString());
@@ -50,6 +45,14 @@ public class ProcessController
         {
             rowLimitValueLabel.setText(newValue.toString());
         });
+        // configure Buttons
+
+        // configure Labels
+        colLimitLabel.setText("columns limit:");
+        rowLimitLabel.setText("rows limit:");
+//        rowLimitLabel.setPrefWidth(colLimitLabel.getPrefWidth());
+        colLimitValueLabel.setText(String.valueOf(colLimitSlider.getValue()));
+        rowLimitValueLabel.setText(String.valueOf(rowLimitSlider.getValue()));
     }
 
     public static void configSlider(@NotNull Slider aSlider, double min, double max,

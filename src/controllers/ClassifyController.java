@@ -1,0 +1,20 @@
+package controllers;
+
+import javafx.fxml.FXML;
+import javafx.scene.layout.BorderPane;
+
+/**
+ * Created by sal on 18/11/15.
+ */
+public class ClassifyController
+{
+    @FXML
+    BorderPane root;
+    // add stuff here
+
+    @FXML
+    private void initialize()
+    {
+        // do stuff here
+    }
+}

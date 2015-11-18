@@ -147,6 +147,7 @@ public abstract class Splitter
      */
     protected void showDebug()
     {
+//        System.out.println("Splitter.showDebug");
         // first draw our image
         ImageManipulator.showMat(root, img);
         // then draw its histograms
