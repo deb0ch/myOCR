@@ -73,17 +73,16 @@ public class HomeController
                                           String.format("%s\n%s", e.getLocalizedMessage(), e.getMessage()));
                     }
                 }
-
             }
         });
 
         processController.pPDButton.setOnAction(event ->
         {
             FileChooser fileChooser = addFileChooser();
-            File choosedFile = fileChooser.showOpenDialog(null);
-            if (choosedFile != null)
+            File chosenFile = fileChooser.showOpenDialog(null);
+            if (chosenFile != null)
             {
-                Mat m = ImageManipulator.loadGreyImage(choosedFile);
+                Mat m = ImageManipulator.loadGreyImage(chosenFile);
                 if (!m.empty())
                 {
                     HBox box = new HBox();
