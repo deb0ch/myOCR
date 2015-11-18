@@ -3,10 +3,16 @@ package controllers;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 import processing.classify.Classifier;
+import processing.pre.ImageManipulator;
+import processing.pre.LinesSplitter;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +57,35 @@ public class HomeController
         FXMLLoader processLoader = new FXMLLoader(getClass().getResource("../views/process.fxml"));
         BorderPane processBP = processLoader.load();
         ProcessController processController = processLoader.getController();
+
+        processController.classifyButton.setOnAction(event ->
+        {
+            FileChooser fileChooser = addFileChooser();
+            File choosedFile = fileChooser.showOpenDialog(null);
+            if (choosedFile != null)
+            {
+                Mat m = ImageManipulator.loadGreyImage(choosedFile);
+                if (!m.empty())
+                    classifier.classify(m);
+            }
+        });
+
+        processController.pPDButton.setOnAction(event ->
+        {
+            FileChooser fileChooser = addFileChooser();
+            File choosedFile = fileChooser.showOpenDialog(null);
+            if (choosedFile != null)
+            {
+                Mat m = ImageManipulator.loadGreyImage(choosedFile);
+                if (!m.empty())
+                {
+                    HBox box = new HBox();
+                    ScrollPane sp = new ScrollPane(box);
+                    root.setBottom(sp);
+                    new LinesSplitter(m, box, processController.colLimitSlider.getValue(), processController.rowLimitSlider.getValue());
+                }
+            }
+        });
 
         tDSController.nextButton.setDisable(true);
         tDSController.saveButton.setDisable(true);
@@ -177,27 +212,6 @@ public class HomeController
         );
         return fileChooser;
     }
-
-//    private Button addClassifyButton()
-//    {
-//        FileChooser fileChooser = addFileChooser();
-//        Button button = new Button("Classify");
-//        button.setOnAction(event ->
-//        {
-//            selectedFile = fileChooser.showOpenDialog(null);
-//            event.consume();
-//            if (selectedFile != null && dataSetPath != null && !dataSetPath.isEmpty())
-//            {
-//                Platform.runLater(() -> {
-//                    root.getChildren().clear();
-//                    HBox box = new HBox();
-//                    box.getChildren().addAll(addReturnButton(), new Label("Loading and training, please wait"));
-//                    root.setCenter(box);
-//                });
-//            }
-//        });
-//        return button;
-//    }
 
     private Button addReturnButton()
     {

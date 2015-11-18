@@ -29,8 +29,8 @@ public abstract class Splitter
     @Nullable
     protected Pane root = null; // used to prompt debug info in a javafx application
 
-    public int colLimit = 0;
-    public int rowLimit = 0;
+    public double colLimit = 0;
+    public double rowLimit = 0;
 
     /**
      * A Splitter split an image pixel, in a given way.
@@ -66,7 +66,7 @@ public abstract class Splitter
      * @param img the image to process
      * @param root expected not null for debug process.
      */
-    public Splitter(@NotNull Mat img, @Nullable Pane root, int colLimit, int rowLimit)
+    public Splitter(@NotNull Mat img, @Nullable Pane root, double colLimit, double rowLimit)
     {
         this.setImg(img);
         this.setRoot(root);
@@ -210,7 +210,7 @@ public abstract class Splitter
      * @return a List containing the Pair of start and end index found,
      *          or an empty list if none was found.
      */
-    protected @NotNull List<Pair<Integer, Integer>> findBoundaries(@NotNull int[] anHistogram, int value)
+    protected @NotNull List<Pair<Integer, Integer>> findBoundaries(@NotNull int[] anHistogram, double value)
     {
         List<Pair<Integer, Integer>> boundaries = new LinkedList<>();
         int start = -1, end = -1;

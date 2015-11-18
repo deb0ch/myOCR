@@ -2,6 +2,7 @@ package processing.pre;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
@@ -29,7 +30,7 @@ public class LinesSplitter extends Splitter {
         this(img, root, 0, 0);
     }
 
-    public LinesSplitter(@NotNull Mat img, @Nullable Pane root, int colLimit, int rowLimit)
+    public LinesSplitter(@NotNull Mat img, @Nullable Pane root, double colLimit, double rowLimit)
     {
         super(img, root, colLimit, rowLimit);
         setRootBackgroundColor(Color.RED);
