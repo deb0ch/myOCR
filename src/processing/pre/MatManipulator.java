@@ -30,12 +30,12 @@ public class MatManipulator
     public static int findDownBound(@NotNull Mat m)
     {
         int result = -1;
-        for (int i = m.width() - 1; i >= 0 && result == -1; --i)
+        for (int j = m.height() -1; j >= 0 && result == -1; --j)
         {
-            for (int j = 0; j < m.height() && result == -1; ++j)
+            for (int i = 0; i < m.width() && result == -1; ++i)
             {
                 if (m.get(j, i)[0] != 255)
-                    result = i;
+                    result = j;
             }
         }
         return result;

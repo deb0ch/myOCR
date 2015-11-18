@@ -40,14 +40,15 @@ public class LinesSplitter extends Splitter {
     protected void showDebug()
     {
         super.showDebug();
-//        System.out.println("LinesSplitter.showDebug");
+        System.out.println("LinesSplitter.showDebug");
     }
 
     @Override
     public List<Mat> split()
     {
         // get the col limits to the biggest line in the paragraph
-        Pair<Integer, Integer> startEndCol = this.findStartAndEnd(getColumnsHistogram());
+        Pair<Integer, Integer> startEndCol = MatManipulator.findUpAndDownBounds(getImg());
+//        Pair<Integer, Integer> startEndCol = this.findStartAndEnd(getColumnsHistogram());
         int startCol = startEndCol.getKey();
         int endCol = startEndCol.getKey();
         // verify if they are corrects

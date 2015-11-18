@@ -70,7 +70,7 @@ public class HomeController
                     catch (IOException e)
                     {
                         ErrorHandling.log(Level.WARNING,
-                                          String.format("%s\n%s", e.getLocalizedMessage(), e.getMessage()));
+                                String.format("%s\n%s", e.getLocalizedMessage(), e.getMessage()));
                     }
                 }
             }
@@ -87,26 +87,30 @@ public class HomeController
                 {
                     HBox box = new HBox();
                     ScrollPane sp = new ScrollPane(box);
-                    root.setBottom(sp);
+                    sp.setMaxSize(700, 720);
+                    root.setRight(sp);
 
                     double colLimit = processController.colLimitSlider.getValue();
                     double rowLimit = processController.rowLimitSlider.getValue();
                     LinesSplitter linesSplitter =
                             new LinesSplitter(m, box, colLimit, rowLimit);
                     VBox tmpBox = new VBox();
+                    tmpBox.setSpacing(5);
                     for (Mat line: linesSplitter.split())
                     {
                         WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox, colLimit, rowLimit);
-                        VBox tmpBox2 = new VBox();
+                        HBox tmpBox2 = new HBox();
                         for (Mat word: wordsSplitter.split())
                         {
-                            LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
-//                            for (Mat letter: lettersSplitter.split())
-//                            {
-//                            }
+                            ImageManipulator.showMat(tmpBox2, word);
+//                            LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
+////                            for (Mat letter: lettersSplitter.split())
+////                            {
+////                            }
                         }
                         tmpBox.getChildren().add(tmpBox2);
                     }
+                    box.getChildren().add(tmpBox);
                 }
             }
         });
@@ -163,18 +167,18 @@ public class HomeController
                 {
                     root.setCenter(tDSBorderPane);
                     tDSController
-                     .generalProgressBar
-                     .progressProperty()
-                     .addListener((observable, oldValue, newValue) ->
-                     {
-                         if (newValue.floatValue() >= 1f)
-                         {
-                             if (savedResponsesFile.exists() && savedSamplesFile.exists())
-                                 tDSController.nextButton.setDisable(false);
-                             else
-                                 tDSController.saveButton.setDisable(false);
-                         }
-                     });
+                            .generalProgressBar
+                            .progressProperty()
+                            .addListener((observable, oldValue, newValue) ->
+                            {
+                                if (newValue.floatValue() >= 1f)
+                                {
+                                    if (savedResponsesFile.exists() && savedSamplesFile.exists())
+                                        tDSController.nextButton.setDisable(false);
+                                    else
+                                        tDSController.saveButton.setDisable(false);
+                                }
+                            });
                     new Thread(() ->
                     {
                         if (dSD != null)

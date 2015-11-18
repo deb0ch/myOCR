@@ -37,14 +37,15 @@ public class WordsSplitter extends Splitter
     protected void showDebug()
     {
         super.showDebug();
-//        System.out.println("WordsSplitter.showDebug");
+        System.out.println("WordsSplitter.showDebug");
     }
 
     @Override
     public List<Mat> split()
     {
         int[] columnsHistogram = getColumnsHistogram();
-        Pair<Integer, Integer> startAndEndRow = findStartAndEnd(getRowsHistogram());
+        Pair<Integer, Integer> startAndEndRow = MatManipulator.findUpAndDownBounds(getImg());
+//        Pair<Integer, Integer> startAndEndRow = findStartAndEnd(getRowsHistogram());
         int rowStart = startAndEndRow.getKey();
         int rowEnd = startAndEndRow.getValue();
         if (rowEnd == -1 || rowStart == -1)
@@ -64,11 +65,11 @@ public class WordsSplitter extends Splitter
         {
             if (columnsHistogram[i] > colLimit && start == -1)
             {
-                start = i;
+                start = i - 1;
             }
             else if (start != -1 && columnsHistogram[i] <= colLimit)
             {
-                end = i;
+                end = i + 1;
             }
             if (start != -1 && end != -1)
             {
@@ -84,10 +85,10 @@ public class WordsSplitter extends Splitter
             }
         }
 
-        if (distances.isEmpty())
+        if (distances.isEmpty()) // is it a letter?
         {
             ErrorHandling.log(Level.WARNING,
-                    String.format("No distances were found: %s", getClass().getName()));
+                    String.format("No distances were found: (%s,%s) %s", start, end, getClass().getName()));
             List<Mat> tmp = new LinkedList<>();
             tmp.add(getImg());
             return tmp;
@@ -114,6 +115,12 @@ public class WordsSplitter extends Splitter
             }
             else if (distances.size() <= i || distances.get(i) > average + 2)
             {
+                System.out.println("m.rows: " + getImg().rows());
+                System.out.println("m.cols: " + getImg().cols());
+                System.out.println(rowStart);
+                System.out.println(rowEnd);
+                System.out.println(startIndex);
+                System.out.println(p.getValue());
                 words.add(getImg().submat(rowStart, rowEnd, startIndex, p.getValue()));
                 startIndex = -1;
             }
