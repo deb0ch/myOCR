@@ -28,7 +28,7 @@ public class LettersSplitter extends Splitter
         this(img, root, 0, 0);
     }
 
-    public LettersSplitter(@NotNull Mat img, @Nullable Pane root, int colLimit, int rowLimit)
+    public LettersSplitter(@NotNull Mat img, @Nullable Pane root, double colLimit, double rowLimit)
     {
         super(img, root, colLimit, rowLimit);
         setRootBackgroundColor(Color.GREEN);

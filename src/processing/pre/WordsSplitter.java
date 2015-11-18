@@ -27,7 +27,7 @@ public class WordsSplitter extends Splitter
         this(img, root, 0, 0);
     }
 
-    public WordsSplitter(@NotNull Mat img, @Nullable Pane root, int colLimit, int rowLimit)
+    public WordsSplitter(@NotNull Mat img, @Nullable Pane root, double colLimit, double rowLimit)
     {
         super(img, root, colLimit, rowLimit);
         setRootBackgroundColor(Color.ORANGE);

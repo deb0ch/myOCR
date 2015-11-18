@@ -267,7 +267,6 @@ public class Classifier
 
     public void doTrain()
     {
-        System.out.println("Classifier.doTrain");
         _knn = KNearest.create();
         setText("Start training", generalStatus);
         setText("...", detailsStatus);

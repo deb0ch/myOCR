@@ -6,13 +6,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import org.opencv.core.Mat;
-import org.opencv.imgcodecs.Imgcodecs;
 import processing.classify.Classifier;
 import processing.pre.ImageManipulator;
+import processing.pre.LettersSplitter;
 import processing.pre.LinesSplitter;
+import processing.pre.WordsSplitter;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,19 +33,6 @@ public class HomeController
     @FXML
     private void initialize() throws IOException
     {
-//        VBox center = new VBox();
-//        Label rowLimitLabel = new Label("row limit");
-//        Label colLimitLabel = new Label("col limit");
-//        colLimitField = new TextField("0");
-//        rowLimitField = new TextField("0");
-//        HBox rowLimitBox = new HBox(rowLimitLabel, rowLimitField);
-//        HBox colLimitBox = new HBox(colLimitLabel, colLimitField);
-//        classifyButton = addClassifyButton();
-//        classifyButton.setVisible(false);
-//        debugPreProcessButton = addDebugPreProcessButton();
-//        debugPreProcessButton.setVisible(false);
-//        center.getChildren().addAll(addSelectTrainingSetDirectory(), classifyButton, debugPreProcessButton, rowLimitBox, colLimitBox);
-//        root.setCenter(center);
         String workingDirectory = System.getProperty("user.dir");
 
         FXMLLoader cDSDLoader = new FXMLLoader(getClass().getResource("../views/cDSD.fxml"));
@@ -82,7 +71,22 @@ public class HomeController
                     HBox box = new HBox();
                     ScrollPane sp = new ScrollPane(box);
                     root.setBottom(sp);
-                    new LinesSplitter(m, box, processController.colLimitSlider.getValue(), processController.rowLimitSlider.getValue());
+
+                    double colLimit = processController.colLimitSlider.getValue();
+                    double rowLimit = processController.rowLimitSlider.getValue();
+                    LinesSplitter linesSplitter =
+                            new LinesSplitter(m, box, colLimit, rowLimit);
+                    VBox tmpBox = new VBox();
+                    for (Mat line: linesSplitter.split())
+                    {
+                        WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox, colLimit, rowLimit);
+                        VBox tmpBox2 = new VBox();
+                        for (Mat word: wordsSplitter.split())
+                        {
+                            LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
+                        }
+                        tmpBox.getChildren().add(tmpBox2);
+                    }
                 }
             }
         });
@@ -155,52 +159,11 @@ public class HomeController
                     {
                         if (dSD != null)
                             classifier.buildDataSet(dSD, cDSDController.ratioSlider.getValue());
-//                        else
                         classifier.doTrain();
                     }).start();
                 });
         root.setCenter(cDSDBorderPane);
     }
-
-
-
-//    private Button addDebugPreProcessButton()
-//    {
-//        FileChooser fileChooser = addFileChooser();
-//        Button button = new Button("Debug Preprocess");
-//        button.setOnAction(event ->
-//        {
-//            selectedFile = fileChooser.showOpenDialog(null);
-//            event.consume();
-//            if (selectedFile != null)
-//            {
-//                root.getChildren().clear();
-//                VBox center = new VBox();
-//                HBox imgsBox = new HBox();
-//                center.getChildren().addAll(addReturnButton(), imgsBox);
-//                ScrollPane scrollPane = new ScrollPane(center);
-//                root.setCenter(scrollPane);
-//                Mat m = ImageManipulator.loadGreyImage(selectedFile);
-//                //detach lines
-//                int colLimit = Integer.valueOf(colLimitField.getText());
-//                int rowLimit = Integer.valueOf(rowLimitField.getText());
-//                LinesSplitter linesSplitter = new LinesSplitter(m, imgsBox, colLimit, rowLimit);
-//                VBox tmpBox = new VBox();
-//                for (Mat line: linesSplitter.split())
-//                {
-//                    WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox, colLimit, rowLimit);
-//                    VBox tmpBox2 = new VBox();
-//                    for (Mat word: wordsSplitter.split())
-//                    {
-//                        LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
-//                    }
-//                    tmpBox.getChildren().add(tmpBox2);
-//                }
-//                imgsBox.getChildren().add(tmpBox);
-//            }
-//        });
-//        return button;
-//    }
 
     private FileChooser addFileChooser()
     {
@@ -211,24 +174,6 @@ public class HomeController
                 new FileChooser.ExtensionFilter("All images", "*.jpg", "*.png", "*.jp2", ".jpeg", ".pmg")
         );
         return fileChooser;
-    }
-
-    private Button addReturnButton()
-    {
-        Button button = new Button("Return");
-        button.setOnAction(event ->
-        {
-            event.consume();
-            root.getChildren().clear();
-            try
-            {
-                this.initialize();
-            } catch (IOException ignored)
-            {
-//            e.printStackTrace();
-            }
-        });
-        return button;
     }
 
     public void setdSD(File dSD)
