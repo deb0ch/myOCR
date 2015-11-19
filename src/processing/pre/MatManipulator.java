@@ -15,13 +15,12 @@ public class MatManipulator
     public static int findUpBound(@NotNull Mat m)
     {
         int result = -1;
-
-        for (int i = 0; i < m.width() && result == -1; i++)
+        for (int row = 0; row < m.height() && result == -1; row++)
         {
-            for (int j = 0; j < m.height() && result == -1; j++)
+            for (int col = 0; col < m.width() && result == -1; col++)
             {
-                if (m.get(j, i)[0] != 255)
-                    result = i;
+                if (m.get(row, col)[0] != 255)
+                    result = (row == 0) ? (row) : (row - 1);
             }
         }
         return result;
@@ -30,12 +29,40 @@ public class MatManipulator
     public static int findDownBound(@NotNull Mat m)
     {
         int result = -1;
-        for (int i = m.width() - 1; i >= 0 && result == -1; --i)
+        for (int row = m.height() -1; row >= 0 && result == -1; --row)
         {
-            for (int j = 0; j < m.height() && result == -1; ++j)
+            for (int col = 0; col < m.width() && result == -1; ++col)
             {
-                if (m.get(j, i)[0] != 255)
-                    result = i;
+                if (m.get(row, col)[0] != 255)
+                    result = (row == m.height() -1) ? (row) : (row + 1);
+            }
+        }
+        return result;
+    }
+
+    public static int findRightBound(@NotNull Mat m)
+    {
+        int result = -1;
+        for (int col = m.width() -1; col >= 0 && result == -1; --col)
+        {
+            for (int row = m.height() - 1; row >= 0 && result == -1; --row)
+            {
+                if (m.get(row, col)[0] != 255)
+                    result = (col == m.width() - 1) ? (col) : (col + 1);
+            }
+        }
+        return result;
+    }
+
+    public static int findLeftBound(@NotNull Mat m)
+    {
+        int result = -1;
+        for (int col = 0; col < m.width() && result == -1; col++)
+        {
+            for (int row = 0; row < m.height() && result == -1; row++)
+            {
+                if (m.get(row, col)[0] != 255)
+                    result = (col == 0) ? (col) : (col - 1);
             }
         }
         return result;
@@ -49,34 +76,6 @@ public class MatManipulator
     public static Pair<Integer, Integer> findLeftAndRightBounds(@NotNull Mat m)
     {
         return new Pair<>(findLeftBound(m), findRightBound(m));
-    }
-
-    private static int findRightBound(@NotNull Mat m)
-    {
-        int result = -1;
-        for (int i = m.height() - 1; i >= 0 && result == -1; --i)
-        {
-            for (int j = 0; j < m.width() && result == -1; ++j)
-            {
-                if (m.get(i, j)[0] != 255)
-                    result = i;
-            }
-        }
-        return result;
-    }
-
-    private static int findLeftBound(@NotNull Mat m)
-    {
-        int result = -1;
-        for (int i = 0; i < m.height() && result == -1; i++)
-        {
-            for (int j = 0; j < m.width() && result == -1; j++)
-            {
-                if (m.get(i, j)[0] != 255)
-                    result = i;
-            }
-        }
-        return result;
     }
 
     public static Rect findBounds(@NotNull Mat m)
