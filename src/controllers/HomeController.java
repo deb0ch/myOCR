@@ -48,6 +48,10 @@ public class HomeController
         BorderPane processBP = processLoader.load();
         ProcessController processController = processLoader.getController();
 
+        FXMLLoader classifyLoader = new FXMLLoader(getClass().getResource("../views/classify.fxml"));
+        BorderPane classifyBorderPane = classifyLoader.load();
+        ClassifyController classifyController = classifyLoader.getController();
+
         processController.classifyButton.setOnAction(event ->
         {
             FileChooser fileChooser = addFileChooser();
@@ -57,20 +61,21 @@ public class HomeController
                 Mat m = ImageManipulator.loadGreyImage(choosedFile);
                 if (!m.empty())
                 {
-                    Character c = classifier.classify(m);
-                    try
+                    classifyController.resultLabel.setText("");
+                    LinesSplitter linesSplitter = new LinesSplitter(m);
+                    for (Mat line: linesSplitter.split())
                     {
-                        FXMLLoader classifyLoader = new FXMLLoader(getClass().getResource("../views/classify.fxml"));
-                        BorderPane classifyBorderPane = classifyLoader.load();
-                        ClassifyController classifyController = classifyLoader.getController();
-                        // do stuff
-                        classifyController.resultLabel.setText(c.toString());
-                        root.setBottom(classifyBorderPane);
-                    }
-                    catch (IOException e)
-                    {
-                        ErrorHandling.log(Level.WARNING,
-                                String.format("%s\n%s", e.getLocalizedMessage(), e.getMessage()));
+                        WordsSplitter wordsSplitter = new WordsSplitter(line);
+                        for (Mat word: wordsSplitter.split())
+                        {
+                            LettersSplitter lettersSplitter = new LettersSplitter(word);
+                            for (Mat letter: lettersSplitter.split())
+                            {
+                                Character c = classifier.classify(letter);
+                                classifyController.resultLabel.setText(String.format("%s %s", classifyController.resultLabel.getText(), c.toString()));
+                                root.setBottom(classifyBorderPane);
+                            }
+                        }
                     }
                 }
             }
@@ -93,36 +98,24 @@ public class HomeController
 
                     double colLimit = processController.colLimitSlider.getValue();
                     double rowLimit = processController.rowLimitSlider.getValue();
+                    classifyController.resultLabel.setText("");
                     LinesSplitter linesSplitter =
                             new LinesSplitter(m, box, colLimit, rowLimit);
                     VBox tmpBox = new VBox();
                     tmpBox.setSpacing(2d);
                     for (Mat line: linesSplitter.split())
                     {
-//                        ImageManipulator.showMat(tmpBox, line);
                         WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox, colLimit, rowLimit);
                         HBox tmpBox2 = new HBox();
                         tmpBox2.setSpacing(2d);
                         for (Mat word: wordsSplitter.split())
                         {
-//                            ImageManipulator.showMat(tmpBox2, word);
                             LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
-                            try
+                            for (Mat letter: lettersSplitter.split())
                             {
-                                FXMLLoader classifyLoader = new FXMLLoader(getClass().getResource("../views/classify.fxml"));
-                                BorderPane classifyBorderPane = classifyLoader.load();
-                                ClassifyController classifyController = classifyLoader.getController();
-                                for (Mat letter: lettersSplitter.split())
-                                {
-                                    Character c = classifier.classify(letter);
-                                    classifyController.resultLabel.setText(String.format("%s %s", classifyController.resultLabel.getText(), c.toString()));
-                                    root.setBottom(classifyBorderPane);
-                                }
-                            }
-                            catch (IOException e)
-                            {
-                                ErrorHandling.log(Level.WARNING,
-                                        String.format("%s\n%s", e.getLocalizedMessage(), e.getMessage()));
+                                Character c = classifier.classify(letter);
+                                classifyController.resultLabel.setText(String.format("%s %s", classifyController.resultLabel.getText(), c.toString()));
+                                root.setBottom(classifyBorderPane);
                             }
                         }
                         tmpBox.getChildren().add(tmpBox2);
@@ -192,10 +185,7 @@ public class HomeController
                             {
                                 if (newValue.floatValue() >= 1f)
                                 {
-//                                    if (savedResponsesFile.exists() && savedSamplesFile.exists())
-//                                        tDSController.nextButton.setDisable(false);
-//                                    else
-                                        tDSController.saveButton.setDisable(false);
+                                    tDSController.saveButton.setDisable(false);
                                 }
                             });
                     new Thread(() ->

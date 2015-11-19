@@ -37,7 +37,6 @@ public class WordsSplitter extends Splitter
     protected void showDebug()
     {
         super.showDebug();
-        System.out.println("WordsSplitter.showDebug");
     }
 
     @Override

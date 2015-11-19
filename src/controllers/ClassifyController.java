@@ -13,13 +13,10 @@ public class ClassifyController
     private BorderPane root;
     @FXML
     public Label resultLabel;
-    // add stuff here
 
     @FXML
     private void initialize()
     {
-        // do stuff here
-        System.out.println("ClassifyController.initialize");
         resultLabel.setText("");
     }
 }
