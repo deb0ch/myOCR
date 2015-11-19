@@ -20,7 +20,7 @@ public class MatManipulator
             for (int col = 0; col < m.width() && result == -1; col++)
             {
                 if (m.get(row, col)[0] != 255)
-                    result = (row == 0) ? (row) : (row - 1);
+                    result = row;
             }
         }
         return result;
@@ -34,7 +34,7 @@ public class MatManipulator
             for (int col = 0; col < m.width() && result == -1; ++col)
             {
                 if (m.get(row, col)[0] != 255)
-                    result = (row == m.height() -1) ? (row) : (row + 1);
+                    result = row;
             }
         }
         return result;
@@ -48,7 +48,7 @@ public class MatManipulator
             for (int row = m.height() - 1; row >= 0 && result == -1; --row)
             {
                 if (m.get(row, col)[0] != 255)
-                    result = (col == m.width() - 1) ? (col) : (col + 1);
+                    result = col;
             }
         }
         return result;
@@ -62,7 +62,7 @@ public class MatManipulator
             for (int row = 0; row < m.height() && result == -1; row++)
             {
                 if (m.get(row, col)[0] != 255)
-                    result = (col == 0) ? (col) : (col - 1);
+                    result = col;
             }
         }
         return result;

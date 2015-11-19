@@ -50,7 +50,7 @@ public class LinesSplitter extends Splitter {
         Pair<Integer, Integer> startEndCol = MatManipulator.findLeftAndRightBounds(getImg());
 //        Pair<Integer, Integer> startEndCol = this.findStartAndEnd(getColumnsHistogram());
         int startCol = startEndCol.getKey();
-        int endCol = startEndCol.getKey();
+        int endCol = startEndCol.getValue();
         // verify if they are corrects
         if (startCol == -1 || endCol == -1)
         {
@@ -69,7 +69,7 @@ public class LinesSplitter extends Splitter {
         List<Pair<Integer, Integer>> boundaries = this.findBoundaries(getRowsHistogram(), rowLimit);
         return boundaries
                 .stream()
-                .map(p -> getImg().submat(p.getKey(), p.getValue(), 0, getImg().cols()))
+                .map(p -> getImg().submat(p.getKey(), p.getValue(), startCol, endCol))
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 }

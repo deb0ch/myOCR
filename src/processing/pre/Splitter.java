@@ -213,6 +213,7 @@ public abstract class Splitter
      */
     protected @NotNull List<Pair<Integer, Integer>> findBoundaries(@NotNull int[] anHistogram, double value)
     {
+        System.out.println("anHist.length: " + anHistogram.length);
         List<Pair<Integer, Integer>> boundaries = new LinkedList<>();
         int start = -1, end = -1;
         for (int i = 0; i < anHistogram.length; i++)

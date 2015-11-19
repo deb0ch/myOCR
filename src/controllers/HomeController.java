@@ -86,6 +86,7 @@ public class HomeController
                 if (!m.empty())
                 {
                     HBox box = new HBox();
+                    box.setSpacing(2d);
                     ScrollPane sp = new ScrollPane(box);
                     sp.setMaxSize(700, 720);
                     root.setRight(sp);
@@ -95,11 +96,12 @@ public class HomeController
                     LinesSplitter linesSplitter =
                             new LinesSplitter(m, box, colLimit, rowLimit);
                     VBox tmpBox = new VBox();
-                    tmpBox.setSpacing(5);
+                    tmpBox.setSpacing(2d);
                     for (Mat line: linesSplitter.split())
                     {
                         WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox, colLimit, rowLimit);
                         HBox tmpBox2 = new HBox();
+                        tmpBox2.setSpacing(2d);
                         for (Mat word: wordsSplitter.split())
                         {
                             ImageManipulator.showMat(tmpBox2, word);
