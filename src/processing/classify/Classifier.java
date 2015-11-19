@@ -113,6 +113,23 @@ public class Classifier
         _knn.train(_trainingSamples, Ml.ROW_SAMPLE, _trainingResponses);
         setProgress(1f, generalProgressBar);
         setText("Done", generalStatus);
+        System.out.println(test());
+    }
+
+    public float test()
+    {
+        float sum = 0;
+        float total = 0;
+
+        for (Character c : _charClasses)
+        {
+            total += _testSet.get(String.valueOf(c)).size();
+            for (Mat smp : _testSet.get(String.valueOf(c)))
+            {
+                sum += classify(smp) == c ? 1 : 0;
+            }
+        }
+        return sum / total;
     }
 
     /*
