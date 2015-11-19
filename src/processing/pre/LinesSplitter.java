@@ -40,7 +40,6 @@ public class LinesSplitter extends Splitter {
     protected void showDebug()
     {
         super.showDebug();
-        System.out.println("LinesSplitter.showDebug");
     }
 
     @Override
@@ -51,6 +50,7 @@ public class LinesSplitter extends Splitter {
 //        Pair<Integer, Integer> startEndCol = this.findStartAndEnd(getColumnsHistogram());
         int startCol = startEndCol.getKey();
         int endCol = startEndCol.getValue();
+
         // verify if they are corrects
         if (startCol == -1 || endCol == -1)
         {
@@ -62,14 +62,23 @@ public class LinesSplitter extends Splitter {
             return new LinkedList<>();
         }
 
-        System.out.println("m.rows: " + getImg().rows());
-        System.out.println("m.cols: " + getImg().cols());
-        System.out.println(startCol);
-        System.out.println(endCol);
+        int margin = 5;
+        int i = 0;
+        while (i < margin && startCol - i > 0)
+        {
+            i++;
+        }
+        final int startColFinal = startCol - i;
+        i = endCol;
+        while (i - endCol < margin && i < getImg().cols())
+        {
+            i++;
+        }
+        final int endColFinal = i;
         List<Pair<Integer, Integer>> boundaries = this.findBoundaries(getRowsHistogram(), rowLimit);
         return boundaries
                 .stream()
-                .map(p -> getImg().submat(p.getKey(), p.getValue(), startCol, endCol))
+                .map(p -> getImg().submat(p.getKey(), p.getValue(), startColFinal, endColFinal))
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 }

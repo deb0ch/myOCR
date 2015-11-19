@@ -99,13 +99,14 @@ public class HomeController
                     tmpBox.setSpacing(2d);
                     for (Mat line: linesSplitter.split())
                     {
+//                        ImageManipulator.showMat(tmpBox, line);
                         WordsSplitter wordsSplitter = new WordsSplitter(line, tmpBox, colLimit, rowLimit);
                         HBox tmpBox2 = new HBox();
                         tmpBox2.setSpacing(2d);
                         for (Mat word: wordsSplitter.split())
                         {
-                            ImageManipulator.showMat(tmpBox2, word);
-//                            LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
+//                            ImageManipulator.showMat(tmpBox2, word);
+                            LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
 ////                            for (Mat letter: lettersSplitter.split())
 ////                            {
 ////                            }
