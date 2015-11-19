@@ -132,14 +132,16 @@ public class HomeController
         });
 
         File savedSamplesFile =
-                new File(String.format("%s%s%s",
+                new File(String.format("%s%s%s%s",
                         workingDirectory,
                         System.getProperty("file.separator"),
+                        Classifier.saveFileName,
                         Classifier.sampleFileName));
         File savedResponsesFile =
-                new File(String.format("%s%s%s",
+                new File(String.format("%s%s%s%s",
                         workingDirectory,
                         System.getProperty("file.separator"),
+                        Classifier.saveFileName,
                         Classifier.responseFileName));
         classifier =
                 new Classifier(tDSController.generalProgressBar,
