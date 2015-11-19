@@ -14,11 +14,9 @@ import processing.pre.ImageManipulator;
 import processing.pre.LettersSplitter;
 import processing.pre.LinesSplitter;
 import processing.pre.WordsSplitter;
-import utils.ErrorHandling;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
 
 /**
  * Created by sal on 11/11/15.
@@ -83,20 +81,8 @@ public class HomeController
 
         processController.testClassifyButton.setOnAction(event ->
         {
-            FXMLLoader classifyLoader = new FXMLLoader(getClass().getResource("../views/classify.fxml"));
-            BorderPane classifyBorderPane = null;
-            try
-            {
-                classifyBorderPane = classifyLoader.load();
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-            ClassifyController classifyController = classifyLoader.getController();
             float result = classifier.test();
             classifyController.resultLabel.setText(String.format("Accuracy: %f%%", result * 100));
-            System.out.println("loool");
             root.setBottom(classifyBorderPane);
         });
 

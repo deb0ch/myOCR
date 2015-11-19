@@ -43,12 +43,6 @@ public class Classifier
         this.detailsProgressBar = detailsProgressBar;
     }
 
-    public Map<String, List<Mat>> get_dataset()  { return _dataset; }
-
-    public Map<String, List<Mat>> get_trainingSet()  { return _trainingSet; }
-
-    public Map<String, List<Mat>> get_testSet()  { return _testSet; }
-
     public Character classify(Mat m)
     {
         Mat results = new Mat();
@@ -66,11 +60,11 @@ public class Classifier
     public void save(String pathName)
     {
         Imgcodecs.imwrite(String.format("%s%s%s%s", pathName, System.getProperty("file.separator"),
-                                        saveFileName, sampleFileName),
-                          _trainingSamples);
+                saveFileName, sampleFileName),
+                _trainingSamples);
         Imgcodecs.imwrite(String.format("%s%s%s%s", pathName, System.getProperty("file.separator"),
-                                        saveFileName, responseFileName),
-                          _trainingResponses);
+                saveFileName, responseFileName),
+                _trainingResponses);
         saveTestSet(saveFileName);
     }
 
@@ -82,13 +76,13 @@ public class Classifier
     {
         setText("Loading Previous Data Set", generalStatus);
         _trainingSamples = Imgcodecs.imread(String.format("%s%s%s%s", pathName, System.getProperty("file.separator"),
-                                                          saveFileName,
-                                                          sampleFileName),
-                                            Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+                saveFileName,
+                sampleFileName),
+                Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
         _trainingResponses = Imgcodecs.imread(String.format("%s%s%s%s", pathName, System.getProperty("file.separator"),
-                                                            saveFileName,
-                                                            responseFileName),
-                                              Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+                saveFileName,
+                responseFileName),
+                Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
         loadTestSet(saveFileName);
     }
 
@@ -113,7 +107,6 @@ public class Classifier
         _knn.train(_trainingSamples, Ml.ROW_SAMPLE, _trainingResponses);
         setProgress(1f, generalProgressBar);
         setText("Done", generalStatus);
-        System.out.println(test());
     }
 
     public float test()
@@ -124,8 +117,10 @@ public class Classifier
         for (Character c : _charClasses)
         {
             total += _testSet.get(String.valueOf(c)).size();
+            int i = 0;
             for (Mat smp : _testSet.get(String.valueOf(c)))
             {
+                System.out.println(i++);
                 sum += classify(smp) == c ? 1 : 0;
             }
         }
@@ -145,43 +140,43 @@ public class Classifier
     private Mat                     _trainingResponses = new Mat(1, 0, CvType.CV_8U);
 
     private char[]                  _charClasses =
-     {
-      'A', 'a',
-      'B', 'b',
-      'C', 'c',
-      'D', 'd',
-      'E', 'e',
-      'F', 'f',
-      'G', 'g',
-      'H', 'h',
-      'I', 'i',
-      'J', 'j',
-      'K', 'k',
-      'L', 'l',
-      'M', 'm',
-      'N', 'n',
-      'O', 'o',
-      'P', 'p',
-      'Q', 'q',
-      'R', 'r',
-      'S', 's',
-      'T', 't',
-      'U', 'u',
-      'V', 'v',
-      'X', 'x',
-      'Y', 'y',
-      'Z', 'z',
-      '0',
-      '1',
-      '2',
-      '3',
-      '4',
-      '5',
-      '6',
-      '7',
-      '8',
-      '9'
-     };
+            {
+                    'A', 'a',
+                    'B', 'b',
+                    'C', 'c',
+                    'D', 'd',
+                    'E', 'e',
+                    'F', 'f',
+                    'G', 'g',
+                    'H', 'h',
+                    'I', 'i',
+                    'J', 'j',
+                    'K', 'k',
+                    'L', 'l',
+                    'M', 'm',
+                    'N', 'n',
+                    'O', 'o',
+                    'P', 'p',
+                    'Q', 'q',
+                    'R', 'r',
+                    'S', 's',
+                    'T', 't',
+                    'U', 'u',
+                    'V', 'v',
+                    'X', 'x',
+                    'Y', 'y',
+                    'Z', 'z',
+                    '0',
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5',
+                    '6',
+                    '7',
+                    '8',
+                    '9'
+            };
 
     private ProgressBar generalProgressBar;
     private ProgressBar detailsProgressBar;
@@ -233,18 +228,23 @@ public class Classifier
 
     private Mat preProc(@NotNull Mat m)
     {
-        System.out.println("\nyolo\n");
         m = ImageManipulator.applyOtsuBinarysation(m);
-        System.out.println("m.size = " + m.size());
         Rect r = MatManipulator.findBounds(m);
-        System.out.println("m.size = " + m.size());
         // rowStart, rowEnd, colStart, colEnd
         m = m.submat(r.x, r.width, r.y, r.height);
-        System.out.println("m.size = " + m.size());
         m = MatManipulator.squareMat(m);
-        System.out.println("m.size = " + m.size());
-        Imgproc.resize(m, m, new Size(24, 24));
+//        Imgproc.resize(m, m, new Size(24, 24), 0, 0, Imgproc.INTER_AREA);
+//        Imgcodecs.imwrite("/tmp/array.bmp", m);
+//        Imgproc.resize(m, m, new Size(24, 24), 0, 0, Imgproc.INTER_CUBIC);
+//        Imgcodecs.imwrite("/tmp/cubic.bmp", m);
+//        Imgproc.resize(m, m, new Size(24, 24), 0, 0, Imgproc.INTER_LANCZOS4);
+//        Imgcodecs.imwrite("/tmp/lanczos4.bmp", m);
+//        Imgproc.resize(m, m, new Size(24, 24), 0, 0, Imgproc.INTER_NEAREST);
+//        Imgcodecs.imwrite("/tmp/nearest.bmp", m);
+        Imgproc.resize(m, m, new Size(24, 24), 0, 0, Imgproc.INTER_LINEAR);
+        Imgcodecs.imwrite("/tmp/linear.bmp", m);
         m = ImageManipulator.applyOtsuBinarysation(m); // Imgproc.resize may break binarization
+        Imgcodecs.imwrite("/tmp/end.bmp", m);
         return m;
     }
 
@@ -302,8 +302,8 @@ public class Classifier
                 Mat smp = Imgcodecs.imread(file.getPath(), Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
                 if (!smp.empty())
                 {
-                    System.out.println(file.getPath());
-                    _dataset.get(String.valueOf(c)).add(preProc(smp));
+                    Mat img = preProc(smp);
+                    _dataset.get(String.valueOf(c)).add(img);
                 }
                 setProgress(current++ / nb_details_steps, detailsProgressBar);
             }
@@ -346,10 +346,9 @@ public class Classifier
             for (File file: tmp)
             {
                 Mat smp = Imgcodecs.imread(file.getPath(), Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
-                System.out.println("file = " + file.getPath());
                 if (!smp.empty())
                 {
-                    _testSet.get(String.valueOf(c)).add(preProc(smp));
+                    _testSet.get(String.valueOf(c)).add(smp);
                 }
             }
         }
