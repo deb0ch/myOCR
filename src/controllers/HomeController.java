@@ -107,9 +107,23 @@ public class HomeController
                         {
 //                            ImageManipulator.showMat(tmpBox2, word);
                             LettersSplitter lettersSplitter = new LettersSplitter(word, tmpBox2, colLimit, rowLimit);
-////                            for (Mat letter: lettersSplitter.split())
-////                            {
-////                            }
+                            try
+                            {
+                                FXMLLoader classifyLoader = new FXMLLoader(getClass().getResource("../views/classify.fxml"));
+                                BorderPane classifyBorderPane = classifyLoader.load();
+                                ClassifyController classifyController = classifyLoader.getController();
+                                for (Mat letter: lettersSplitter.split())
+                                {
+                                    Character c = classifier.classify(letter);
+                                    classifyController.resultLabel.setText(String.format("%s %s", classifyController.resultLabel.getText(), c.toString()));
+                                    root.setBottom(classifyBorderPane);
+                                }
+                            }
+                            catch (IOException e)
+                            {
+                                ErrorHandling.log(Level.WARNING,
+                                        String.format("%s\n%s", e.getLocalizedMessage(), e.getMessage()));
+                            }
                         }
                         tmpBox.getChildren().add(tmpBox2);
                     }
@@ -178,9 +192,9 @@ public class HomeController
                             {
                                 if (newValue.floatValue() >= 1f)
                                 {
-                                    if (savedResponsesFile.exists() && savedSamplesFile.exists())
-                                        tDSController.nextButton.setDisable(false);
-                                    else
+//                                    if (savedResponsesFile.exists() && savedSamplesFile.exists())
+//                                        tDSController.nextButton.setDisable(false);
+//                                    else
                                         tDSController.saveButton.setDisable(false);
                                 }
                             });
