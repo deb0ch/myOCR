@@ -76,6 +76,25 @@ public class HomeController
             }
         });
 
+        processController.testClassifyButton.setOnAction(event ->
+        {
+            FXMLLoader classifyLoader = new FXMLLoader(getClass().getResource("../views/classify.fxml"));
+            BorderPane classifyBorderPane = null;
+            try
+            {
+                classifyBorderPane = classifyLoader.load();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+            ClassifyController classifyController = classifyLoader.getController();
+            float result = classifier.test();
+            classifyController.resultLabel.setText(String.format("Accuracy: %f%%", result * 100));
+            System.out.println("loool");
+            root.setBottom(classifyBorderPane);
+        });
+
         processController.pPDButton.setOnAction(event ->
         {
             FileChooser fileChooser = addFileChooser();

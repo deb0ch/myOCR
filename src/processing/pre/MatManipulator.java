@@ -34,7 +34,7 @@ public class MatManipulator
             for (int col = 0; col < m.width() && result == -1; ++col)
             {
                 if (m.get(row, col)[0] != 255)
-                    result = row;
+                    result = row + 1;
             }
         }
         return result;
@@ -48,7 +48,7 @@ public class MatManipulator
             for (int row = m.height() - 1; row >= 0 && result == -1; --row)
             {
                 if (m.get(row, col)[0] != 255)
-                    result = col;
+                    result = col + 1;
             }
         }
         return result;

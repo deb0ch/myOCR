@@ -17,6 +17,8 @@ public class ProcessController
     @FXML
     public Button classifyButton;
     @FXML
+    public Button testClassifyButton;
+    @FXML
     public Button pPDButton; // pre process debug
     @FXML
     public Label colLimitLabel;
