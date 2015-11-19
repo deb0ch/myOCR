@@ -2,6 +2,7 @@ package processing.pre;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
+import javafx.application.Platform;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
@@ -147,7 +148,6 @@ public abstract class Splitter
      */
     protected void showDebug()
     {
-        System.out.println("Splitter.showDebug");
         // first draw our image
         ImageManipulator.showMat(root, img);
         // then draw its histograms
@@ -213,18 +213,31 @@ public abstract class Splitter
      */
     protected @NotNull List<Pair<Integer, Integer>> findBoundaries(@NotNull int[] anHistogram, double value)
     {
-        System.out.println("anHist.length: " + anHistogram.length);
+//        int max = Integer.MIN_VALUE;
+//        int min = Integer.MAX_VALUE;
+//        int average = 0;
+//        for (int anAnHistogram : anHistogram)
+//        {
+//            max = Math.max(max, anAnHistogram);
+//            min = Math.min(min, anAnHistogram);
+//            average += anAnHistogram;
+//        }
+//        average = average/anHistogram.length;
+//        System.out.println("min: "+ min);
+//        System.out.println("max: "+ max);
+//        System.out.println("ave: "+ average);
+
         List<Pair<Integer, Integer>> boundaries = new LinkedList<>();
         int start = -1, end = -1;
         for (int i = 0; i < anHistogram.length; i++)
         {
             if (anHistogram[i] > value && start == -1)
             {
-                start = (i == 0) ? (i) : (i - 1);
+                start = i;
             }
             else if (start != -1 && anHistogram[i] <= value)
             {
-                end = (i == anHistogram.length - 1) ? (i) : (i + 1);
+                end = i;
             }
             if (start != -1 && end != -1)
             {

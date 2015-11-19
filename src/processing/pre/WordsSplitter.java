@@ -56,7 +56,19 @@ public class WordsSplitter extends Splitter
                             getClass().getName()));
             return new LinkedList<>();
         }
-
+        int margin = 5;
+        int j = 0;
+        while (j < margin && rowStart - j > 0)
+        {
+            j++;
+        }
+        final int rowStartFinal = rowStart - j;
+        j = rowEnd;
+        while (j - rowEnd < margin && j < getImg().rows())
+        {
+            j++;
+        }
+        final int rowEndFinal = j;
         List<Pair<Integer, Integer>> boundaries = new LinkedList<>();
         List<Integer> distances = new LinkedList<>();
         int start = -1, end = -1;
@@ -114,13 +126,7 @@ public class WordsSplitter extends Splitter
             }
             else if (distances.size() <= i || distances.get(i) > average + 2)
             {
-                System.out.println("m.rows: " + getImg().rows());
-                System.out.println("m.cols: " + getImg().cols());
-                System.out.println(rowStart);
-                System.out.println(rowEnd);
-                System.out.println(startIndex);
-                System.out.println(p.getValue());
-                words.add(getImg().submat(rowStart, rowEnd, startIndex, p.getValue()));
+                words.add(getImg().submat(rowStartFinal, rowEndFinal, startIndex, p.getValue()));
                 startIndex = -1;
             }
         }
