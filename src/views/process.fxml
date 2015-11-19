@@ -8,6 +8,9 @@
             <HBox alignment="CENTER">
                 <Button fx:id="classifyButton" text="Classify"/>
             </HBox>
+            <HBox alignment="CENTER">
+                <Button fx:id="testClassifyButton" text="Test classifier"/>
+            </HBox>
             <VBox spacing="20" alignment="CENTER">
                 <HBox spacing="5">
                     <Slider fx:id="colLimitSlider"/>

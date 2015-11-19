@@ -233,11 +233,16 @@ public class Classifier
 
     private Mat preProc(@NotNull Mat m)
     {
+        System.out.println("\nyolo\n");
         m = ImageManipulator.applyOtsuBinarysation(m);
+        System.out.println("m.size = " + m.size());
         Rect r = MatManipulator.findBounds(m);
+        System.out.println("m.size = " + m.size());
         // rowStart, rowEnd, colStart, colEnd
         m = m.submat(r.x, r.width, r.y, r.height);
+        System.out.println("m.size = " + m.size());
         m = MatManipulator.squareMat(m);
+        System.out.println("m.size = " + m.size());
         Imgproc.resize(m, m, new Size(24, 24));
         m = ImageManipulator.applyOtsuBinarysation(m); // Imgproc.resize may break binarization
         return m;
@@ -296,7 +301,10 @@ public class Classifier
             {
                 Mat smp = Imgcodecs.imread(file.getPath(), Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
                 if (!smp.empty())
+                {
+                    System.out.println(file.getPath());
                     _dataset.get(String.valueOf(c)).add(preProc(smp));
+                }
                 setProgress(current++ / nb_details_steps, detailsProgressBar);
             }
         }
@@ -338,6 +346,7 @@ public class Classifier
             for (File file: tmp)
             {
                 Mat smp = Imgcodecs.imread(file.getPath(), Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+                System.out.println("file = " + file.getPath());
                 if (!smp.empty())
                 {
                     _testSet.get(String.valueOf(c)).add(preProc(smp));
