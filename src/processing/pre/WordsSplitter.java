@@ -45,7 +45,6 @@ public class WordsSplitter extends Splitter
     {
         int[] columnsHistogram = getColumnsHistogram();
         Pair<Integer, Integer> startAndEndRow = MatManipulator.findUpAndDownBounds(getImg());
-//        Pair<Integer, Integer> startAndEndRow = findStartAndEnd(getRowsHistogram());
         int rowStart = startAndEndRow.getKey();
         int rowEnd = startAndEndRow.getValue();
         if (rowEnd == -1 || rowStart == -1)

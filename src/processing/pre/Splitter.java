@@ -219,11 +219,11 @@ public abstract class Splitter
         {
             if (anHistogram[i] > value && start == -1)
             {
-                start = i - 1;
+                start = (i == 0) ? (i) : (i - 1);
             }
             else if (start != -1 && anHistogram[i] <= value)
             {
-                end = i + 1;
+                end = (i == anHistogram.length - 1) ? (i) : (i + 1);
             }
             if (start != -1 && end != -1)
             {

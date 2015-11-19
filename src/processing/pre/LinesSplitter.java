@@ -47,7 +47,7 @@ public class LinesSplitter extends Splitter {
     public List<Mat> split()
     {
         // get the col limits to the biggest line in the paragraph
-        Pair<Integer, Integer> startEndCol = MatManipulator.findUpAndDownBounds(getImg());
+        Pair<Integer, Integer> startEndCol = MatManipulator.findLeftAndRightBounds(getImg());
 //        Pair<Integer, Integer> startEndCol = this.findStartAndEnd(getColumnsHistogram());
         int startCol = startEndCol.getKey();
         int endCol = startEndCol.getKey();
@@ -62,6 +62,10 @@ public class LinesSplitter extends Splitter {
             return new LinkedList<>();
         }
 
+        System.out.println("m.rows: " + getImg().rows());
+        System.out.println("m.cols: " + getImg().cols());
+        System.out.println(startCol);
+        System.out.println(endCol);
         List<Pair<Integer, Integer>> boundaries = this.findBoundaries(getRowsHistogram(), rowLimit);
         return boundaries
                 .stream()
