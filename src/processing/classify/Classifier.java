@@ -218,7 +218,8 @@ public class Classifier
     {
         m = ImageManipulator.applyOtsuBinarysation(m);
         Rect r = MatManipulator.findBounds(m);
-        m = m.submat(r.y, r.y + r.height, r.x, r.x + r.width);
+        // rowStart, rowEnd, colStart, colEnd
+        m = m.submat(r.x, r.width, r.y, r.height);
         m = MatManipulator.squareMat(m);
         Imgproc.resize(m, m, new Size(24, 24));
         m = ImageManipulator.applyOtsuBinarysation(m); // Imgproc.resize may break binarization

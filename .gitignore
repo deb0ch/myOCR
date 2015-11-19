@@ -5,6 +5,6 @@ gradle.xml
 *.iws
 out
 *.log
-*_resp.png
-*_samp.png
-*_test/*
+*_resp.*
+*_samp.*
+*_test/

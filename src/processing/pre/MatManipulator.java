@@ -82,11 +82,14 @@ public class MatManipulator
     {
         Pair<Integer, Integer> upAndDownBounds = findUpAndDownBounds(m);
         Pair<Integer, Integer> leftAndRightBounds = findLeftAndRightBounds(m);
-        int start_x = upAndDownBounds.getKey();
-        int end_x = upAndDownBounds.getValue();
-        int start_y = leftAndRightBounds.getKey();
-        int end_y = leftAndRightBounds.getValue();
-        return new Rect(start_x, start_y, end_x - start_x, end_y - start_y);
+
+        int up = upAndDownBounds.getKey();
+        int down = upAndDownBounds.getValue();
+        int left = leftAndRightBounds.getKey();
+        int right = leftAndRightBounds.getValue();
+
+        //noinspection SuspiciousNameCombination
+        return new Rect(up, left, down, right);
     }
 
     public static Mat squareMat(@NotNull Mat m)
